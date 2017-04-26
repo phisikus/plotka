@@ -1,9 +1,9 @@
 package pl.weimaraner.plotka
 
-class EntryPoint {
+object EntryPoint {
 
-  def main(args: Array[String]): Unit = {
-    System.out.println("Lol")
+  def main(args: Array[String]): Unit =  {
+
   }
 
 }
