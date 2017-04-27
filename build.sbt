@@ -9,6 +9,14 @@ publishMavenStyle := true
 mainClass in Compile := Some("pl.weimaraner.plotka.EntryPoint")
 
 libraryDependencies ++= Seq(
-	"org.scalatest" % "scalatest_2.12" % "3.0.1" % Test
+  // Configuration
+  "org.yaml" % "snakeyaml" % "1.18",
+
+// Logging
+  "ch.qos.logback" % "logback-classic" % "1.1.7",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
+
+  // Testing
+  "org.scalatest" % "scalatest_2.12" % "3.0.1" % Test
 )
 

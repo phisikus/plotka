@@ -1,9 +1,14 @@
 package pl.weimaraner.plotka
 
+import com.typesafe.scalalogging.Logger
+
 object EntryPoint {
 
-  def main(args: Array[String]): Unit =  {
+  val logger = Logger("EntryPoint")
 
+  def main(args: Array[String]): Unit = {
+    logger.info("Starting application...")
   }
+
 
 }
