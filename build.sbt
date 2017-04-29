@@ -10,9 +10,9 @@ mainClass in Compile := Some("pl.weimaraner.plotka.EntryPoint")
 
 libraryDependencies ++= Seq(
   // Configuration
-  "org.yaml" % "snakeyaml" % "1.18",
+  "com.typesafe" % "config" % "1.3.1",
 
-// Logging
+  // Logging
   "ch.qos.logback" % "logback-classic" % "1.1.7",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
 
