@@ -13,7 +13,7 @@ class FileConfigurationProviderTest extends FunSuite with Matchers {
   private val expectedConfiguration = new BasicNodeConfiguration("node0.network", 2828, "10.0.0.1", expectedPeerConfiguration)
 
   test("Should load correct values from configuration file") {
-    val fileConfigurationProvider = new FileConfigurationProvider("test_configuration")
+    val fileConfigurationProvider = new FileConfigurationProvider(configurationFile)
     val actualConfiguration = fileConfigurationProvider.loadConfiguration
     actualConfiguration should equal (expectedConfiguration)
   }
