@@ -1,6 +1,7 @@
 package pl.weimaraner.plotka.conf.providers
 
 import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.scalalogging.Logger
 import pl.weimaraner.plotka.conf.model.{BasicNodeConfiguration, BasicPeerConfiguration}
 import pl.weimaraner.plotka.conf.{NodeConfiguration, NodeConfigurationProvider, PeerConfiguration}
 
@@ -8,14 +9,17 @@ import scala.collection.JavaConverters._
 
 class FileConfigurationProvider(val fileName: String = "application") extends NodeConfigurationProvider {
 
+  private val logger = Logger(classOf[FileConfigurationProvider])
+
   override def loadConfiguration: NodeConfiguration = {
+    logger.info(s"Loading configuration : $fileName")
     val loadedConfiguration = ConfigFactory.load(fileName)
     val node = loadedConfiguration.getConfig("node")
     val nodeId = node.getString("id")
     val nodePort = node.getInt("port")
     val nodeAddress = node.getString("address")
     val peers = node.getConfigList("peers").asScala.toList
-    new BasicNodeConfiguration(nodeId, nodePort, nodeAddress, buildPeerConfigurations(peers))
+    BasicNodeConfiguration(nodeId, nodePort, nodeAddress, buildPeerConfigurations(peers))
   }
 
   private def buildPeerConfigurations(peers: List[_ <: Config]): List[PeerConfiguration] = {
@@ -27,9 +31,9 @@ class FileConfigurationProvider(val fileName: String = "application") extends No
 
   private def buildPeerConfiguration(peerConfig: Config): PeerConfiguration = {
     if (peerConfig.hasPath("port")) {
-      new BasicPeerConfiguration(peerConfig.getString("address"), peerConfig.getInt("port"))
+      BasicPeerConfiguration(peerConfig.getString("address"), peerConfig.getInt("port"))
     } else {
-      new BasicPeerConfiguration(peerConfig.getString("address"))
+      BasicPeerConfiguration(peerConfig.getString("address"))
     }
   }
 
