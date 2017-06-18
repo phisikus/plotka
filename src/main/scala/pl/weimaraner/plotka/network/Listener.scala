@@ -6,7 +6,7 @@ import java.util.concurrent.Executors
 
 import com.typesafe.scalalogging.Logger
 import pl.weimaraner.plotka.conf.NodeConfiguration
-import pl.weimaraner.plotka.model.{Message, NetworkMessage, NetworkMessageConsumer, NetworkPeer}
+import pl.weimaraner.plotka.model.{Message, NetworkMessageConsumer, NetworkPeer}
 
 import scala.annotation.tailrec
 
