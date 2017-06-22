@@ -1,7 +1,8 @@
 package pl.weimaraner.plotka.network
 
 import java.io.{IOException, ObjectInputStream}
-import java.net.{InetAddress, ServerSocket, Socket}
+import java.net.{InetSocketAddress, Socket}
+import java.nio.channels.{AsynchronousChannelGroup, AsynchronousServerSocketChannel}
 import java.util.concurrent.Executors
 
 import com.typesafe.scalalogging.Logger
@@ -11,21 +12,15 @@ import pl.weimaraner.plotka.model.{Message, NetworkMessageConsumer, NetworkPeer}
 import scala.annotation.tailrec
 
 class Listener(val nodeConfiguration: NodeConfiguration, val messageConsumer: NetworkMessageConsumer) {
-  private val serverSocket = new ServerSocket(nodeConfiguration.port, 50, InetAddress.getByName(nodeConfiguration.address))
-  private val threadPool = Executors.newFixedThreadPool(10)
   private val logger = Logger(classOf[Listener])
+  private val serverThreadGroup = AsynchronousChannelGroup.withFixedThreadPool(10, Executors.defaultThreadFactory())
+  private val serverSocketAddress = new InetSocketAddress(nodeConfiguration.address, nodeConfiguration.port)
+  private val serverSocketChannel = AsynchronousServerSocketChannel.open(serverThreadGroup).bind(serverSocketAddress)
+  serverSocketChannel.accept()
 
-  def startServerLoop(): Unit = {
-    threadPool.execute(() => runServerLoop())
-  }
+  //https://chamibuddhika.wordpress.com/2012/08/11/io-demystified/
+  def start(): Unit = {
 
-  @tailrec
-  private def runServerLoop(): Unit = {
-    logger.debug(s"Waiting for new connection (${nodeConfiguration.address}:${nodeConfiguration.port}) ... ")
-    val newClientSocket = serverSocket.accept()
-    logger.debug(s"Accepted connection: ${newClientSocket.getRemoteSocketAddress.toString}")
-    threadPool.execute(handleClient(newClientSocket))
-    runServerLoop()
   }
 
   private def handleClient(clientSocket: Socket): Runnable = {

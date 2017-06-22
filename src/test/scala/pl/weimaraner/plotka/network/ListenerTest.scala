@@ -21,7 +21,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     val expectedMessage: Message[Peer, Peer, Serializable] = getTestMessage(testNodeConfiguration)
     val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
 
-    testListener.startServerLoop()
+    testListener.start()
     sendMessageToListener(testNodeConfiguration)
 
     eventually {
