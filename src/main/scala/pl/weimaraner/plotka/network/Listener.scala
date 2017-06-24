@@ -2,8 +2,7 @@ package pl.weimaraner.plotka.network
 
 import java.net.InetSocketAddress
 import java.nio.channels.{AsynchronousChannelGroup, AsynchronousServerSocketChannel}
-import java.util.concurrent.{Executors, TimeUnit}
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.Executors
 
 import com.typesafe.scalalogging.Logger
 import pl.weimaraner.plotka.conf.NodeConfiguration

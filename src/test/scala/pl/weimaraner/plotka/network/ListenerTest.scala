@@ -61,7 +61,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
       sendMessagesToListener(testNodeConfiguration, List(msg))
     })
 
-    eventually(timeout(Span(30, Seconds)),interval(Span(300, Millis))) {
+    eventually(timeout(Span(30, Seconds)), interval(Span(300, Millis))) {
       testMessageConsumer.receivedMessages should contain allElementsOf (testMessages)
     }
     testListener.stop()
