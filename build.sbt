@@ -16,6 +16,10 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.1.7",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
 
+  // Apache Commons
+  "org.apache.commons" % "commons-lang3" % "3.6",
+
+
   // Testing
   "org.scalatest" % "scalatest_2.12" % "3.0.1" % Test
 )

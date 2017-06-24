@@ -1,15 +1,18 @@
 package pl.weimaraner.plotka.network
 
-import java.io.{ByteArrayOutputStream, ObjectOutputStream}
+import java.io.{ByteArrayOutputStream, ObjectOutputStream, OutputStream}
 import java.net.Socket
 import java.nio.ByteBuffer
+import java.util.UUID
 
+import org.apache.commons.lang3.{RandomStringUtils, RandomUtils}
 import org.scalatest.concurrent.Eventually
 import org.scalatest.{FunSuite, Matchers}
 import pl.weimaraner.plotka.conf.model.BasicNodeConfiguration
 import pl.weimaraner.plotka.model._
 import pl.weimaraner.plotka.network.dto.TestMessage
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 class ListenerTest extends FunSuite with Eventually with Matchers {
@@ -30,24 +33,71 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     testListener.stop()
   }
 
-  private def sendMessageToListener(testNodeConfiguration: BasicNodeConfiguration) = {
-    val testMessage: NetworkMessage = getTestMessage(testNodeConfiguration)
-    val testClientSocket = new Socket(testNodeConfiguration.address, testNodeConfiguration.port)
-    val clientOutputStream = testClientSocket.getOutputStream
 
-    val serializedMessage = getMessageAsBytes(testMessage)
-    clientOutputStream.write(getIntAsBytes(serializedMessage.length))
-    clientOutputStream.write(serializedMessage)
-    clientOutputStream.write(getIntAsBytes(0))
-    clientOutputStream.flush()
-    clientOutputStream.close()
-    testClientSocket.close()
+
+
+  test("Should start listener and receive multiple messages") {
+    val testNodeConfiguration = BasicNodeConfiguration(peers = Nil)
+    val testMessageConsumer = new QueueMessageHandler
+    val testMessages : List[NetworkMessage] = getTestMessages(100)
+    val testListener = new Listener(testNodeConfiguration, () => new SessionState(), testMessageConsumer)
+
+    testListener.start()
+    sendMessagesToListener(testNodeConfiguration, testMessages)
+
+    eventually {
+      testMessageConsumer.receivedMessages should contain allElementsOf(testMessages)
+    }
+    testListener.stop()
+  }
+
+  def getTestMessages(count: Int): List[NetworkMessage] = {
+    val randomMessageBuilder = (i : Int) => {
+      val sender = NetworkPeer(getRandomString, getRandomString, RandomUtils.nextInt())
+      val recipient = NetworkPeer(getRandomString, getRandomString, RandomUtils.nextInt())
+      NetworkMessage(sender, recipient, TestMessage(getRandomString))
+    }
+
+    1.to(count)
+      .map(randomMessageBuilder).toList
+  }
+
+
+  private def getRandomString = {
+    UUID.randomUUID().toString
   }
 
   def getIntAsBytes(number: Int): Array[Byte] = {
     val intBuffer = ByteBuffer.allocate(4)
     intBuffer.putInt(number)
     intBuffer.array()
+  }
+
+  private def sendMessageToListener(testNodeConfiguration: BasicNodeConfiguration) = {
+    val testMessage: NetworkMessage = getTestMessage(testNodeConfiguration)
+    sendMessagesToListener(testNodeConfiguration, List(testMessage))
+  }
+
+  private def sendMessagesToListener(testNodeConfiguration: BasicNodeConfiguration, testMessages: List[NetworkMessage]) = {
+    val testClientSocket = new Socket(testNodeConfiguration.address, testNodeConfiguration.port)
+    val clientOutputStream = testClientSocket.getOutputStream
+    writeMessages(clientOutputStream, testMessages)
+    clientOutputStream.flush()
+    clientOutputStream.close()
+    testClientSocket.close()
+  }
+
+  @tailrec
+  private def writeMessages(clientOutputStream: OutputStream, testMessages: List[NetworkMessage]): Unit = {
+    testMessages match {
+      case Nil =>
+        clientOutputStream.write(getIntAsBytes(0))
+      case msg :: tail =>
+        val serializedMessage = getMessageAsBytes(msg)
+        clientOutputStream.write(getIntAsBytes(serializedMessage.length))
+        clientOutputStream.write(serializedMessage)
+        writeMessages(clientOutputStream, tail)
+    }
   }
 
   private def getMessageAsBytes(testMessage: NetworkMessage): Array[Byte] = {
