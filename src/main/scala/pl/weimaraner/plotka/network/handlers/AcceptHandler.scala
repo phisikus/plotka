@@ -8,10 +8,12 @@ import pl.weimaraner.plotka.model.{NetworkMessageConsumer, SessionState}
 
 class AcceptHandler(messageConsumer: NetworkMessageConsumer) extends CompletionHandler[AsynchronousSocketChannel, SessionState] {
   private val logger = Logger(classOf[AcceptHandler])
+  private val IntegerSize = 4
 
   override def completed(channel: AsynchronousSocketChannel, sessionState: SessionState): Unit = {
     logger.debug(s"Accepted connection: ${channel.getRemoteAddress.toString}")
-    val messageSizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
+
+    val messageSizeBuffer: ByteBuffer = ByteBuffer.allocate(IntegerSize)
     channel.read(messageSizeBuffer, sessionState, new MessageSizeHandler(messageConsumer, channel, messageSizeBuffer))
   }
 

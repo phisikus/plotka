@@ -15,15 +15,15 @@ class MessageSizeHandler(messageConsumer: NetworkMessageConsumer,
   override def completed(bytesRead: Integer, sessionState: SessionState): Unit = {
     messageSizeBuffer.rewind()
     val messageSize = messageSizeBuffer.getInt
-    if (Option(messageSize).isDefined) {
-      logger.debug(s"Receiving message of size $messageSize from: ${channel.getRemoteAddress}")
-      orderMessageRead(messageSize, sessionState)
-    } else {
-      logger.debug(s"The message size could not be determined for ${channel.getRemoteAddress}")
+    Option(messageSize) match {
+      case Some(x) if x > 0 => orderMessageRead(messageSize, sessionState)
+      case Some(0) => logger.debug(s"Peer declared end of transmission: ${channel.getRemoteAddress}")
+      case None => logger.debug(s"The message size could not be determined for ${channel.getRemoteAddress}")
     }
   }
 
   def orderMessageRead(messageSize: Int, sessionState: SessionState): Unit = {
+    logger.debug(s"Receiving message of size $messageSize from: ${channel.getRemoteAddress}")
     val messageBuffer = ByteBuffer.allocate(messageSize)
     channel.read(messageBuffer, sessionState, new MessageContentHandler(messageConsumer, channel, messageBuffer))
   }

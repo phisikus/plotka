@@ -15,7 +15,7 @@ import scala.collection.mutable
 class ListenerTest extends FunSuite with Eventually with Matchers {
 
 
-  test("Should start server socket and receive message") {
+  test("Should start listener and receive message") {
     val testNodeConfiguration = BasicNodeConfiguration(peers = Nil)
     val testMessageConsumer = new QueueMessageHandler
     val expectedMessage: Message[Peer, Peer, Serializable] = getTestMessage(testNodeConfiguration)
@@ -38,6 +38,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     val serializedMessage = getMessageAsBytes(testMessage)
     clientOutputStream.write(getIntAsBytes(serializedMessage.length))
     clientOutputStream.write(serializedMessage)
+    clientOutputStream.write(getIntAsBytes(0))
     clientOutputStream.flush()
     clientOutputStream.close()
     testClientSocket.close()
@@ -55,6 +56,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     objectStream.writeObject(testMessage)
     objectStream.flush()
     objectStream.close()
+    byteOutputStream.close()
     byteOutputStream.toByteArray
   }
 
