@@ -1,7 +1,8 @@
 package pl.weimaraner.plotka.network
 
-import java.io.ObjectOutputStream
+import java.io.{ByteArrayOutputStream, ObjectOutputStream}
 import java.net.Socket
+import java.nio.ByteBuffer
 
 import org.scalatest.concurrent.Eventually
 import org.scalatest.{FunSuite, Matchers}
@@ -14,12 +15,11 @@ import scala.collection.mutable
 class ListenerTest extends FunSuite with Eventually with Matchers {
 
 
-
   test("Should start server socket and receive message") {
     val testNodeConfiguration = BasicNodeConfiguration(peers = Nil)
     val testMessageConsumer = new QueueMessageHandler
     val expectedMessage: Message[Peer, Peer, Serializable] = getTestMessage(testNodeConfiguration)
-    val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
+    val testListener = new Listener(testNodeConfiguration, () => new SessionState(), testMessageConsumer)
 
     testListener.start()
     sendMessageToListener(testNodeConfiguration)
@@ -27,17 +27,36 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     eventually {
       testMessageConsumer.receivedMessages.dequeue() should equal(expectedMessage)
     }
+    testListener.stop()
   }
 
   private def sendMessageToListener(testNodeConfiguration: BasicNodeConfiguration) = {
-    val testClientSocket = new Socket(testNodeConfiguration.address, testNodeConfiguration.port)
-    val objectOutputStream = new ObjectOutputStream(testClientSocket.getOutputStream)
     val testMessage: NetworkMessage = getTestMessage(testNodeConfiguration)
-    objectOutputStream.writeObject(testMessage)
-    objectOutputStream.close()
+    val testClientSocket = new Socket(testNodeConfiguration.address, testNodeConfiguration.port)
+    val clientOutputStream = testClientSocket.getOutputStream
+
+    val serializedMessage = getMessageAsBytes(testMessage)
+    clientOutputStream.write(getIntAsBytes(serializedMessage.length))
+    clientOutputStream.write(serializedMessage)
+    clientOutputStream.flush()
+    clientOutputStream.close()
     testClientSocket.close()
   }
 
+  def getIntAsBytes(number: Int): Array[Byte] = {
+    val intBuffer = ByteBuffer.allocate(4)
+    intBuffer.putInt(number)
+    intBuffer.array()
+  }
+
+  private def getMessageAsBytes(testMessage: NetworkMessage): Array[Byte] = {
+    val byteOutputStream = new ByteArrayOutputStream()
+    val objectStream = new ObjectOutputStream(byteOutputStream)
+    objectStream.writeObject(testMessage)
+    objectStream.flush()
+    objectStream.close()
+    byteOutputStream.toByteArray
+  }
 
   private def getTestMessage(testNodeConfiguration: BasicNodeConfiguration) = {
     val testPeer = NetworkPeer("eb1b35ad-7001-4e5f-8c3a-487255713a0c", testNodeConfiguration.address, testNodeConfiguration.port)
