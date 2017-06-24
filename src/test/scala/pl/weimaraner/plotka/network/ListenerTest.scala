@@ -5,8 +5,9 @@ import java.net.Socket
 import java.nio.ByteBuffer
 import java.util.UUID
 
-import org.apache.commons.lang3.{RandomStringUtils, RandomUtils}
+import org.apache.commons.lang3.RandomUtils
 import org.scalatest.concurrent.Eventually
+import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{FunSuite, Matchers}
 import pl.weimaraner.plotka.conf.model.BasicNodeConfiguration
 import pl.weimaraner.plotka.model._
@@ -34,25 +35,41 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
   }
 
 
-
-
   test("Should start listener and receive multiple messages") {
     val testNodeConfiguration = BasicNodeConfiguration(peers = Nil)
     val testMessageConsumer = new QueueMessageHandler
-    val testMessages : List[NetworkMessage] = getTestMessages(100)
+    val testMessages: List[NetworkMessage] = getTestMessages(100)
     val testListener = new Listener(testNodeConfiguration, () => new SessionState(), testMessageConsumer)
 
     testListener.start()
     sendMessagesToListener(testNodeConfiguration, testMessages)
 
     eventually {
-      testMessageConsumer.receivedMessages should contain allElementsOf(testMessages)
+      testMessageConsumer.receivedMessages should contain allElementsOf (testMessages)
     }
     testListener.stop()
   }
 
+  test("Should start listener and receive multiple messages from multiple connections") {
+    val testNodeConfiguration = BasicNodeConfiguration(peers = Nil)
+    val testMessageConsumer = new QueueMessageHandler
+    val testMessages: List[NetworkMessage] = getTestMessages(50)
+    val testListener = new Listener(testNodeConfiguration, () => new SessionState(), testMessageConsumer)
+
+    testListener.start()
+    testMessages.par.foreach(msg => {
+      sendMessagesToListener(testNodeConfiguration, List(msg))
+    })
+
+    eventually(timeout(Span(30, Seconds)),interval(Span(300, Millis))) {
+      testMessageConsumer.receivedMessages should contain allElementsOf (testMessages)
+    }
+    testListener.stop()
+  }
+
+
   def getTestMessages(count: Int): List[NetworkMessage] = {
-    val randomMessageBuilder = (i : Int) => {
+    val randomMessageBuilder = (i: Int) => {
       val sender = NetworkPeer(getRandomString, getRandomString, RandomUtils.nextInt())
       val recipient = NetworkPeer(getRandomString, getRandomString, RandomUtils.nextInt())
       NetworkMessage(sender, recipient, TestMessage(getRandomString))

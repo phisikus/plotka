@@ -17,9 +17,14 @@ class MessageSizeHandler(messageConsumer: NetworkMessageConsumer,
     val messageSize = messageSizeBuffer.getInt
     Option(messageSize) match {
       case Some(x) if x > 0 => orderMessageRead(messageSize, sessionState)
-      case Some(0) => logger.debug(s"Peer declared end of transmission: ${channel.getRemoteAddress}")
+      case Some(0) => closeTransmission()
       case None => logger.debug(s"The message size could not be determined for ${channel.getRemoteAddress}")
     }
+  }
+
+  private def closeTransmission() = {
+    logger.debug(s"Peer declared end of transmission: ${channel.getRemoteAddress}")
+    channel.close()
   }
 
   def orderMessageRead(messageSize: Int, sessionState: SessionState): Unit = {
