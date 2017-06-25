@@ -7,6 +7,14 @@ import java.nio.channels.{AsynchronousSocketChannel, CompletionHandler}
 import com.typesafe.scalalogging.Logger
 import pl.weimaraner.plotka.model._
 
+/**
+  * This handler is called after read operation and performs deserialization of incoming message.
+  * After that the message consumer is called followed by an attempt to order the next read operation.
+  *
+  * @param messageConsumer the message consumer that will be called after the message is received
+  * @param messageBuffer buffer containing received incoming message
+  * @param channel server channel
+  */
 class MessageContentHandler(messageConsumer: NetworkMessageConsumer,
                             channel: AsynchronousSocketChannel,
                             messageBuffer: ByteBuffer) extends CompletionHandler[Integer, SessionState] {
@@ -14,8 +22,12 @@ class MessageContentHandler(messageConsumer: NetworkMessageConsumer,
 
   override def completed(bytesRead: Integer, sessionState: SessionState): Unit = {
     messageConsumer.consumeMessage(readMessageFromBuffer(), sessionState)
+    readNextMessageSize(sessionState)
+  }
+
+  private def readNextMessageSize(sessionState: SessionState) = {
     val messageSizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
-    channel.read(messageSizeBuffer, sessionState, new MessageSizeHandler(messageConsumer, channel, messageSizeBuffer))
+    channel.read(messageSizeBuffer, sessionState, new MessageSizeHandler(messageConsumer, messageSizeBuffer, channel))
   }
 
   private def readMessageFromBuffer() = {

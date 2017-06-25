@@ -9,6 +9,14 @@ import pl.weimaraner.plotka.conf.NodeConfiguration
 import pl.weimaraner.plotka.model.{NetworkMessageConsumer, SessionState}
 import pl.weimaraner.plotka.network.handlers.AcceptHandler
 
+/**
+  * Listener creates a network socket and services incoming connections and messages.
+  * For each connection a session object is created and passed between executions of message consumer.
+  *
+  * @param nodeConfiguration initial configuration
+  * @param sessionStateConstructor function producing sessionState instances
+  * @param messageConsumer handler that will be called for each received message
+  */
 class Listener(val nodeConfiguration: NodeConfiguration,
                val sessionStateConstructor: () => SessionState,
                val messageConsumer: NetworkMessageConsumer) {

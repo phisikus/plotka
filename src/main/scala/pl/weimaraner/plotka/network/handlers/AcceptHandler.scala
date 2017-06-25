@@ -6,9 +6,19 @@ import java.nio.channels.{AsynchronousCloseException, AsynchronousServerSocketCh
 import com.typesafe.scalalogging.Logger
 import pl.weimaraner.plotka.model.{NetworkMessageConsumer, SessionState}
 
+/**
+  * This handler is called when new client connection is accepted.
+  * It enables future accepts and orders a read operation that will return a single integer.
+  * That value represents size in bytes of an incoming message object.
+  * Every read operation is asynchronous so the result will available to the next handler
+  *
+  * @param messageConsumer the message consumer that will be called after the message is received
+  * @param sessionStateConstructor factory method for the initial session state object
+  * @param channel server channel
+  */
 class AcceptHandler(messageConsumer: NetworkMessageConsumer,
                     sessionStateConstructor: () => SessionState,
-                    serverSocketChannel: AsynchronousServerSocketChannel) extends CompletionHandler[AsynchronousSocketChannel, SessionState] {
+                    channel: AsynchronousServerSocketChannel) extends CompletionHandler[AsynchronousSocketChannel, SessionState] {
   private val logger = Logger(classOf[AcceptHandler])
   private val IntegerSize = 4
 
@@ -19,12 +29,12 @@ class AcceptHandler(messageConsumer: NetworkMessageConsumer,
   }
 
   private def acceptNextConnection() = {
-    serverSocketChannel.accept(sessionStateConstructor.apply(), this)
+    channel.accept(sessionStateConstructor.apply(), this)
   }
 
   private def orderReadMessageSize(channel: AsynchronousSocketChannel, sessionState: SessionState) = {
     val messageSizeBuffer: ByteBuffer = ByteBuffer.allocate(IntegerSize)
-    channel.read(messageSizeBuffer, sessionState, new MessageSizeHandler(messageConsumer, channel, messageSizeBuffer))
+    channel.read(messageSizeBuffer, sessionState, new MessageSizeHandler(messageConsumer, messageSizeBuffer, channel))
   }
 
   override def failed(throwable: Throwable, sessionState: SessionState): Unit = {

@@ -6,9 +6,17 @@ import java.nio.channels.{AsynchronousSocketChannel, CompletionHandler}
 import com.typesafe.scalalogging.Logger
 import pl.weimaraner.plotka.model.{NetworkMessageConsumer, SessionState}
 
+/**
+  * This handler is called when the size of the message is received.
+  * It triggers a read operation for the incoming message.
+  *
+  * @param messageConsumer the message consumer that will be called after the message is received
+  * @param messageSizeBuffer buffer containing received incoming message size
+  * @param channel server channel
+  */
 class MessageSizeHandler(messageConsumer: NetworkMessageConsumer,
-                         channel: AsynchronousSocketChannel,
-                         messageSizeBuffer: ByteBuffer) extends CompletionHandler[Integer, SessionState] {
+                         messageSizeBuffer: ByteBuffer,
+                         channel: AsynchronousSocketChannel) extends CompletionHandler[Integer, SessionState] {
   private val logger = Logger(classOf[MessageSizeHandler])
 
 
