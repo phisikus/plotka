@@ -1,7 +1,7 @@
 package pl.weimaraner.plotka.network.handlers
 
 import java.nio.ByteBuffer
-import java.nio.channels.{AsynchronousServerSocketChannel, AsynchronousSocketChannel, CompletionHandler}
+import java.nio.channels.{AsynchronousCloseException, AsynchronousServerSocketChannel, AsynchronousSocketChannel, CompletionHandler}
 
 import com.typesafe.scalalogging.Logger
 import pl.weimaraner.plotka.model.{NetworkMessageConsumer, SessionState}
@@ -27,7 +27,10 @@ class AcceptHandler(messageConsumer: NetworkMessageConsumer,
     channel.read(messageSizeBuffer, sessionState, new MessageSizeHandler(messageConsumer, channel, messageSizeBuffer))
   }
 
-  override def failed(throwable: Throwable, a: SessionState): Unit = {
-    logger.debug(s"Accept operation failed: $throwable")
+  override def failed(throwable: Throwable, sessionState: SessionState): Unit = {
+    throwable match {
+      case _ : AsynchronousCloseException =>
+      case e : Throwable => logger.debug(s"Accept operation failed: $e")
+    }
   }
 }

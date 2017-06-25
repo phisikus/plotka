@@ -28,7 +28,7 @@ class Listener(val nodeConfiguration: NodeConfiguration,
   def stop(): Unit = {
     logger.info("Stopping the listener...")
     serverSocketChannel.close()
-    logger.info("Communication channel and thread pool closed.")
+    logger.info("Communication channel closed.")
   }
 
 }
