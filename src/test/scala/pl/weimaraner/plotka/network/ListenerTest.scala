@@ -45,7 +45,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     sendMessagesToListener(testNodeConfiguration, testMessages)
 
     eventually {
-      testMessageConsumer.receivedMessages should contain allElementsOf (testMessages)
+      testMessageConsumer.receivedMessages should contain allElementsOf testMessages
     }
     testListener.stop()
   }
@@ -62,7 +62,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     })
 
     eventually(timeout(Span(30, Seconds)), interval(Span(300, Millis))) {
-      testMessageConsumer.receivedMessages should contain allElementsOf (testMessages)
+      testMessageConsumer.receivedMessages should contain allElementsOf testMessages
     }
     testListener.stop()
   }
@@ -136,10 +136,10 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
   class QueueMessageHandler extends NetworkMessageConsumer {
     val receivedMessages: mutable.Queue[Message[NetworkPeer, Peer, Serializable]] = mutable.Queue()
 
-    override def consumeMessage(message: Message[NetworkPeer, Peer, Serializable]): Unit = {
+    override def consumeMessage(message: Message[NetworkPeer, Peer, Serializable],
+                                sessionState: SessionState): Unit = {
       receivedMessages.enqueue(message)
     }
-
   }
 
 

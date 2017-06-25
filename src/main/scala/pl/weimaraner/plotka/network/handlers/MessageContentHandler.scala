@@ -13,7 +13,7 @@ class MessageContentHandler(messageConsumer: NetworkMessageConsumer,
   private val logger = Logger(classOf[MessageContentHandler])
 
   override def completed(bytesRead: Integer, sessionState: SessionState): Unit = {
-    messageConsumer.consumeMessage(readMessageFromBuffer())
+    messageConsumer.consumeMessage(readMessageFromBuffer(), sessionState)
     val messageSizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
     channel.read(messageSizeBuffer, sessionState, new MessageSizeHandler(messageConsumer, channel, messageSizeBuffer))
   }
