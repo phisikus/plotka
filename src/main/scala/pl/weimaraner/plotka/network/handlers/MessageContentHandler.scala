@@ -23,7 +23,7 @@ class MessageContentHandler(messageConsumer: NetworkMessageConsumer,
     val byteInputStream = new ByteArrayInputStream(messageBuffer.array())
     val objectInputStream = new ObjectInputStream(byteInputStream)
     val inputObject = objectInputStream.readObject()
-    val message = inputObject.asInstanceOf[Message[NetworkPeer, NetworkPeer, Serializable]]
+    val message = inputObject.asInstanceOf[Message[NetworkPeer, Peer, Serializable]]
     byteInputStream.close()
     objectInputStream.close()
     logger.debug(s"Received message from: ${channel.getRemoteAddress}, content: $message")

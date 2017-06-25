@@ -134,9 +134,9 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
   }
 
   class QueueMessageHandler extends NetworkMessageConsumer {
-    val receivedMessages: mutable.Queue[Message[NetworkPeer, NetworkPeer, Serializable]] = mutable.Queue()
+    val receivedMessages: mutable.Queue[Message[NetworkPeer, Peer, Serializable]] = mutable.Queue()
 
-    override def consumeMessage(message: Message[NetworkPeer, NetworkPeer, Serializable]): Unit = {
+    override def consumeMessage(message: Message[NetworkPeer, Peer, Serializable]): Unit = {
       receivedMessages.enqueue(message)
     }
 

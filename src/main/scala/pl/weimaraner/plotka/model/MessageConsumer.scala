@@ -4,5 +4,5 @@ sealed trait MessageConsumer[S, R, M <: Serializable] {
   def consumeMessage(message: Message[S, R, M])
 }
 
-trait NetworkMessageConsumer extends MessageConsumer[NetworkPeer, NetworkPeer, Serializable]
+trait NetworkMessageConsumer extends MessageConsumer[NetworkPeer, Peer, Serializable]
 
