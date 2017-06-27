@@ -1,4 +1,4 @@
-package pl.weimaraner.plotka.network.handlers
+package pl.weimaraner.plotka.network.listener.handlers
 
 import java.io.{ByteArrayInputStream, ObjectInputStream}
 import java.nio.ByteBuffer
@@ -12,8 +12,8 @@ import pl.weimaraner.plotka.model._
   * After that the message consumer is called followed by an attempt to order the next read operation.
   *
   * @param messageConsumer the message consumer that will be called after the message is received
-  * @param messageBuffer buffer containing received incoming message
-  * @param channel server channel
+  * @param messageBuffer   buffer containing received incoming message
+  * @param channel         server channel
   */
 class MessageContentHandler(messageConsumer: NetworkMessageConsumer,
                             channel: AsynchronousSocketChannel,

@@ -1,4 +1,4 @@
-package pl.weimaraner.plotka
+package pl.weimaraner.plotka.conf
 
 import org.scalatest.{FunSuite, Matchers}
 import pl.weimaraner.plotka.conf.model.{BasicNodeConfiguration, BasicPeerConfiguration}

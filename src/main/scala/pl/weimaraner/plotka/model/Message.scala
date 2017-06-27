@@ -5,9 +5,9 @@ sealed abstract class Message[S, R, M <: Serializable](sender: S, recipient: R, 
 /**
   * This class represents message that can be sent and received over the network.
   *
-  * @param sender Peer object representing sender of the message
+  * @param sender    Peer object representing sender of the message
   * @param recipient Peer object representing recipient of the message
-  * @param message message body
+  * @param message   message body
   */
 case class NetworkMessage(sender: Peer,
                           recipient: Peer,

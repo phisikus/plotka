@@ -1,4 +1,4 @@
-package pl.weimaraner.plotka.network
+package pl.weimaraner.plotka.network.listener
 
 import java.io.{ByteArrayOutputStream, ObjectOutputStream, OutputStream}
 import java.net.Socket
@@ -11,7 +11,7 @@ import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{FunSuite, Matchers}
 import pl.weimaraner.plotka.conf.model.BasicNodeConfiguration
 import pl.weimaraner.plotka.model._
-import pl.weimaraner.plotka.network.dto.TestMessage
+import pl.weimaraner.plotka.network.listener.dto.TestMessage
 
 import scala.annotation.tailrec
 import scala.collection.mutable

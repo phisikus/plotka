@@ -1,4 +1,4 @@
-package pl.weimaraner.plotka.network
+package pl.weimaraner.plotka.network.listener
 
 import java.net.InetSocketAddress
 import java.nio.channels.{AsynchronousChannelGroup, AsynchronousServerSocketChannel}
@@ -6,14 +6,13 @@ import java.util.concurrent.Executors
 
 import com.typesafe.scalalogging.Logger
 import pl.weimaraner.plotka.conf.NodeConfiguration
-import pl.weimaraner.plotka.model.{NetworkMessageConsumer, SessionState}
-import pl.weimaraner.plotka.network.handlers.AcceptHandler
+import pl.weimaraner.plotka.model.NetworkMessageConsumer
 
 /**
   * Listener creates a network socket and services incoming connections and messages.
   *
   * @param nodeConfiguration initial configuration
-  * @param messageConsumer handler that will be called for each received message
+  * @param messageConsumer   handler that will be called for each received message
   */
 class Listener(val nodeConfiguration: NodeConfiguration,
                val messageConsumer: NetworkMessageConsumer) {

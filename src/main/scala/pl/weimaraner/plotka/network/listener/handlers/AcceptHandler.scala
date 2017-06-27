@@ -1,10 +1,10 @@
-package pl.weimaraner.plotka.network.handlers
+package pl.weimaraner.plotka.network.listener.handlers
 
 import java.nio.ByteBuffer
 import java.nio.channels.{AsynchronousCloseException, AsynchronousServerSocketChannel, AsynchronousSocketChannel, CompletionHandler}
 
 import com.typesafe.scalalogging.Logger
-import pl.weimaraner.plotka.model.{NetworkMessageConsumer, SessionState}
+import pl.weimaraner.plotka.model.NetworkMessageConsumer
 
 /**
   * This handler is called when new client connection is accepted.
@@ -13,14 +13,14 @@ import pl.weimaraner.plotka.model.{NetworkMessageConsumer, SessionState}
   * Every read operation is asynchronous so the result will available to the next handler
   *
   * @param messageConsumer the message consumer that will be called after the message is received
-  * @param channel server channel
+  * @param channel         server channel
   */
 class AcceptHandler(messageConsumer: NetworkMessageConsumer,
                     channel: AsynchronousServerSocketChannel) extends CompletionHandler[AsynchronousSocketChannel, Unit] {
   private val logger = Logger(classOf[AcceptHandler])
   private val IntegerSize = 4
 
-  override def completed(channel: AsynchronousSocketChannel, state : Unit): Unit = {
+  override def completed(channel: AsynchronousSocketChannel, state: Unit): Unit = {
     logger.debug(s"Accepted connection: ${channel.getRemoteAddress.toString}")
     acceptNextConnection()
     orderReadMessageSize(channel, state)
@@ -37,8 +37,8 @@ class AcceptHandler(messageConsumer: NetworkMessageConsumer,
 
   override def failed(throwable: Throwable, state: Unit): Unit = {
     throwable match {
-      case _ : AsynchronousCloseException =>
-      case e : Throwable => logger.debug(s"Accept operation failed: $e")
+      case _: AsynchronousCloseException =>
+      case e: Throwable => logger.debug(s"Accept operation failed: $e")
     }
   }
 }
