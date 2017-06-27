@@ -17,17 +17,17 @@ import pl.weimaraner.plotka.model._
   */
 class MessageContentHandler(messageConsumer: NetworkMessageConsumer,
                             channel: AsynchronousSocketChannel,
-                            messageBuffer: ByteBuffer) extends CompletionHandler[Integer, SessionState] {
+                            messageBuffer: ByteBuffer) extends CompletionHandler[Integer, Unit] {
   private val logger = Logger(classOf[MessageContentHandler])
 
-  override def completed(bytesRead: Integer, sessionState: SessionState): Unit = {
-    messageConsumer.consumeMessage(readMessageFromBuffer(), sessionState)
-    readNextMessageSize(sessionState)
+  override def completed(bytesRead: Integer, state: Unit): Unit = {
+    messageConsumer.consumeMessage(readMessageFromBuffer())
+    readNextMessageSize(state)
   }
 
-  private def readNextMessageSize(sessionState: SessionState) = {
+  private def readNextMessageSize(state: Unit) = {
     val messageSizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
-    channel.read(messageSizeBuffer, sessionState, new MessageSizeHandler(messageConsumer, messageSizeBuffer, channel))
+    channel.read(messageSizeBuffer, state, new MessageSizeHandler(messageConsumer, messageSizeBuffer, channel))
   }
 
   private def readMessageFromBuffer() = {
@@ -42,7 +42,7 @@ class MessageContentHandler(messageConsumer: NetworkMessageConsumer,
     message
   }
 
-  override def failed(throwable: Throwable, state: SessionState): Unit = {
+  override def failed(throwable: Throwable, state: Unit): Unit = {
     logger.debug(s"Could not read message from:  ${channel.getRemoteAddress} caused by: $throwable")
   }
 

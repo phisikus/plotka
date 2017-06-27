@@ -11,14 +11,11 @@ import pl.weimaraner.plotka.network.handlers.AcceptHandler
 
 /**
   * Listener creates a network socket and services incoming connections and messages.
-  * For each connection a session object is created and passed between executions of message consumer.
   *
   * @param nodeConfiguration initial configuration
-  * @param sessionStateConstructor function producing sessionState instances
   * @param messageConsumer handler that will be called for each received message
   */
 class Listener(val nodeConfiguration: NodeConfiguration,
-               val sessionStateConstructor: () => SessionState,
                val messageConsumer: NetworkMessageConsumer) {
   private val logger = Logger(classOf[Listener])
   private val serverThreadGroup = AsynchronousChannelGroup.withFixedThreadPool(10, Executors.defaultThreadFactory())
@@ -28,9 +25,10 @@ class Listener(val nodeConfiguration: NodeConfiguration,
 
   def start(): Unit = {
     serverSocketChannel = AsynchronousServerSocketChannel.open(serverThreadGroup).bind(serverSocketAddress)
-    val acceptHandler = new AcceptHandler(messageConsumer, sessionStateConstructor, serverSocketChannel)
+    val acceptHandler = new AcceptHandler(messageConsumer, serverSocketChannel)
     logger.info(s"Listener is waiting for connections: $serverSocketAddress")
-    serverSocketChannel.accept(sessionStateConstructor.apply(), acceptHandler)
+
+    serverSocketChannel.accept((), acceptHandler)
   }
 
   def stop(): Unit = {

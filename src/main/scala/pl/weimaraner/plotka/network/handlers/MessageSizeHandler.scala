@@ -16,15 +16,15 @@ import pl.weimaraner.plotka.model.{NetworkMessageConsumer, SessionState}
   */
 class MessageSizeHandler(messageConsumer: NetworkMessageConsumer,
                          messageSizeBuffer: ByteBuffer,
-                         channel: AsynchronousSocketChannel) extends CompletionHandler[Integer, SessionState] {
+                         channel: AsynchronousSocketChannel) extends CompletionHandler[Integer, Unit] {
   private val logger = Logger(classOf[MessageSizeHandler])
 
 
-  override def completed(bytesRead: Integer, sessionState: SessionState): Unit = {
+  override def completed(bytesRead: Integer, state: Unit): Unit = {
     messageSizeBuffer.rewind()
     val messageSize = messageSizeBuffer.getInt
     Option(messageSize) match {
-      case Some(x) if x > 0 => orderMessageRead(messageSize, sessionState)
+      case Some(x) if x > 0 => orderMessageRead(messageSize, state)
       case Some(0) => closeTransmission()
       case None => logger.debug(s"The message size could not be determined for ${channel.getRemoteAddress}")
     }
@@ -35,14 +35,14 @@ class MessageSizeHandler(messageConsumer: NetworkMessageConsumer,
     channel.close()
   }
 
-  def orderMessageRead(messageSize: Int, sessionState: SessionState): Unit = {
+  def orderMessageRead(messageSize: Int, state: Unit): Unit = {
     logger.debug(s"Receiving message of size $messageSize from: ${channel.getRemoteAddress}")
     val messageBuffer = ByteBuffer.allocate(messageSize)
-    channel.read(messageBuffer, sessionState, new MessageContentHandler(messageConsumer, channel, messageBuffer))
+    channel.read(messageBuffer, state, new MessageContentHandler(messageConsumer, channel, messageBuffer))
   }
 
 
-  override def failed(throwable: Throwable, state: SessionState): Unit = {
+  override def failed(throwable: Throwable, state: Unit): Unit = {
     logger.debug(s"Could not read message size from:  ${channel.getRemoteAddress} caused by: $throwable")
   }
 

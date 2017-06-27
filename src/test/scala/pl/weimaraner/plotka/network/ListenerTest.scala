@@ -23,7 +23,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     val testNodeConfiguration = BasicNodeConfiguration(peers = Nil)
     val testMessageConsumer = new QueueMessageHandler
     val expectedMessage: Message[Peer, Peer, Serializable] = getTestMessage(testNodeConfiguration)
-    val testListener = new Listener(testNodeConfiguration, () => new SessionState(), testMessageConsumer)
+    val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
 
     testListener.start()
     sendMessageToListener(testNodeConfiguration)
@@ -39,7 +39,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     val testNodeConfiguration = BasicNodeConfiguration(peers = Nil)
     val testMessageConsumer = new QueueMessageHandler
     val testMessages: List[NetworkMessage] = getTestMessages(100)
-    val testListener = new Listener(testNodeConfiguration, () => new SessionState(), testMessageConsumer)
+    val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
 
     testListener.start()
     sendMessagesToListener(testNodeConfiguration, testMessages)
@@ -54,7 +54,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     val testNodeConfiguration = BasicNodeConfiguration(peers = Nil)
     val testMessageConsumer = new QueueMessageHandler
     val testMessages: List[NetworkMessage] = getTestMessages(50)
-    val testListener = new Listener(testNodeConfiguration, () => new SessionState(), testMessageConsumer)
+    val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
 
     testListener.start()
     testMessages.par.foreach(msg => {
@@ -136,8 +136,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
   class QueueMessageHandler extends NetworkMessageConsumer {
     val receivedMessages: mutable.Queue[Message[NetworkPeer, Peer, Serializable]] = mutable.Queue()
 
-    override def consumeMessage(message: Message[NetworkPeer, Peer, Serializable],
-                                sessionState: SessionState): Unit = {
+    override def consumeMessage(message: Message[NetworkPeer, Peer, Serializable]): Unit = {
       receivedMessages.enqueue(message)
     }
   }
