@@ -7,6 +7,7 @@ import java.util.concurrent.Executors
 import com.typesafe.scalalogging.Logger
 import pl.weimaraner.plotka.conf.NodeConfiguration
 import pl.weimaraner.plotka.model.NetworkMessageConsumer
+import pl.weimaraner.plotka.network.listener.handlers.AcceptHandler
 
 /**
   * Listener creates a network socket and services incoming connections and messages.
