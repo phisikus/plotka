@@ -20,7 +20,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
 
 
   test("Should start listener and receive message") {
-    val testNodeConfiguration = BasicNodeConfiguration(peers = Nil)
+    val testNodeConfiguration = BasicNodeConfiguration(peers = Nil, port = 3031)
     val testMessageConsumer = new QueueMessageHandler
     val expectedMessage: Message[Peer, Peer, Serializable] = getTestMessage(testNodeConfiguration)
     val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
@@ -36,7 +36,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
 
 
   test("Should start listener and receive multiple messages") {
-    val testNodeConfiguration = BasicNodeConfiguration(peers = Nil)
+    val testNodeConfiguration = BasicNodeConfiguration(peers = Nil, port = 3032)
     val testMessageConsumer = new QueueMessageHandler
     val testMessages: List[NetworkMessage] = getTestMessages(100)
     val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
@@ -51,7 +51,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
   }
 
   test("Should start listener and receive multiple messages from multiple connections") {
-    val testNodeConfiguration = BasicNodeConfiguration(peers = Nil)
+    val testNodeConfiguration = BasicNodeConfiguration(peers = Nil, port = 3033)
     val testMessageConsumer = new QueueMessageHandler
     val testMessages: List[NetworkMessage] = getTestMessages(50)
     val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
