@@ -1,6 +1,6 @@
 package pl.weimaraner.plotka.network.listener.handlers
 
-import java.io.{ByteArrayInputStream, ObjectInputStream}
+import java.io.{ByteArrayInputStream, IOException, ObjectInputStream}
 import java.nio.ByteBuffer
 import java.nio.channels.{AsynchronousSocketChannel, CompletionHandler}
 
@@ -21,8 +21,24 @@ class MessageContentHandler(messageConsumer: NetworkMessageConsumer,
   private val logger = Logger(classOf[MessageContentHandler])
 
   override def completed(bytesRead: Integer, state: Unit): Unit = {
-    messageConsumer.consumeMessage(readMessageFromBuffer())
+    readMessage(messageBuffer) match {
+      case Some(message) => messageConsumer.consumeMessage(message)
+      case None => logger.debug("Could not read message.")
+    }
     readNextMessageSize(state)
+  }
+
+  private def readMessage(messageBuffer: ByteBuffer): Option[Message[NetworkPeer, Peer, Serializable]] = {
+    try
+      Some(readMessageFromBuffer())
+    catch {
+      case ioe: IOException =>
+        logger.debug(s"Exception was thrown while reading message: $ioe")
+        None
+      case cnf: ClassNotFoundException =>
+        logger.debug(s"Deserialization failed, class could not be found: $cnf")
+        None
+    }
   }
 
   private def readNextMessageSize(state: Unit) = {
@@ -30,7 +46,7 @@ class MessageContentHandler(messageConsumer: NetworkMessageConsumer,
     channel.read(messageSizeBuffer, state, new MessageSizeHandler(messageConsumer, messageSizeBuffer, channel))
   }
 
-  private def readMessageFromBuffer() = {
+  private def readMessageFromBuffer(): Message[NetworkPeer, Peer, Serializable] = {
     messageBuffer.rewind()
     val byteInputStream = new ByteArrayInputStream(messageBuffer.array())
     val objectInputStream = new ObjectInputStream(byteInputStream)

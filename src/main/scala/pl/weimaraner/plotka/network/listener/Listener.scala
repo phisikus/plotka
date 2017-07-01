@@ -1,5 +1,6 @@
 package pl.weimaraner.plotka.network.listener
 
+import java.io.IOException
 import java.net.InetSocketAddress
 import java.nio.channels.{AsynchronousChannelGroup, AsynchronousServerSocketChannel}
 import java.util.concurrent.Executors
@@ -22,7 +23,6 @@ class Listener(val nodeConfiguration: NodeConfiguration,
   private val serverSocketAddress = new InetSocketAddress(nodeConfiguration.address, nodeConfiguration.port)
   private var serverSocketChannel: AsynchronousServerSocketChannel = _
 
-
   def start(): Unit = {
     serverSocketChannel = AsynchronousServerSocketChannel.open(serverThreadGroup).bind(serverSocketAddress)
     val acceptHandler = new AcceptHandler(messageConsumer, serverSocketChannel)
@@ -33,7 +33,11 @@ class Listener(val nodeConfiguration: NodeConfiguration,
 
   def stop(): Unit = {
     logger.info("Stopping the listener...")
-    serverSocketChannel.close()
+    try
+      serverSocketChannel.close()
+    catch {
+      case e: IOException => logger.debug(s"Exception was thrown during stop(): $e")
+    }
     logger.info("Communication channel closed.")
   }
 

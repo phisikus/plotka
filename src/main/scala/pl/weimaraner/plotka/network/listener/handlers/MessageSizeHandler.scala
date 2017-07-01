@@ -1,5 +1,6 @@
 package pl.weimaraner.plotka.network.listener.handlers
 
+import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.channels.{AsynchronousSocketChannel, CompletionHandler}
 
@@ -32,7 +33,11 @@ class MessageSizeHandler(messageConsumer: NetworkMessageConsumer,
 
   private def closeTransmission() = {
     logger.debug(s"Peer declared end of transmission: ${channel.getRemoteAddress}")
-    channel.close()
+    try
+      channel.close()
+    catch {
+      case e : IOException => logger.debug(s"Exception thrown during closeTransmission(): $e")
+    }
   }
 
   def orderMessageRead(messageSize: Int, state: Unit): Unit = {
