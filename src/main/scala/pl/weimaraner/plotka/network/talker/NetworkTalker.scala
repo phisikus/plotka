@@ -11,8 +11,8 @@ import scala.collection.concurrent.TrieMap
 
 class NetworkTalker(localPeer: Peer) extends Talker {
 
-  val peerChannelMap: TrieMap[NetworkPeer, SocketChannel] = new TrieMap()
-  val bufferWithZero: ByteBuffer = ByteBuffer.wrap(getIntAsBytes(0))
+  private val peerChannelMap: TrieMap[NetworkPeer, SocketChannel] = new TrieMap()
+  private val bufferWithZero: ByteBuffer = ByteBuffer.wrap(getIntAsBytes(0))
 
   override def send(recipient: NetworkPeer, messageBody: Serializable): Unit = {
     val clientChannel: SocketChannel = getOpenChannelForPeer(recipient)
