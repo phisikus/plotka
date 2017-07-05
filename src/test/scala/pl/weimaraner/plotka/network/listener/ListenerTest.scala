@@ -12,6 +12,7 @@ import org.scalatest.{FunSuite, Matchers}
 import pl.weimaraner.plotka.conf.model.BasicNodeConfiguration
 import pl.weimaraner.plotka.model._
 import pl.weimaraner.plotka.network.listener.dto.TestMessage
+import pl.weimaraner.plotka.network.listener.utils.QueueMessageHandler
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -53,7 +54,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
   test("Should start listener and receive multiple messages from multiple connections") {
     val testNodeConfiguration = BasicNodeConfiguration(peers = Nil, port = 3033)
     val testMessageConsumer = new QueueMessageHandler
-    val testMessages: List[NetworkMessage] = getTestMessages(50)
+    val testMessages: List[NetworkMessage] = getTestMessages(100)
     val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
 
     testListener.start()
@@ -133,13 +134,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     testMessage
   }
 
-  class QueueMessageHandler extends NetworkMessageConsumer {
-    val receivedMessages: mutable.Queue[Message[NetworkPeer, Peer, Serializable]] = mutable.Queue()
 
-    override def consumeMessage(message: Message[NetworkPeer, Peer, Serializable]): Unit = {
-      receivedMessages.enqueue(message)
-    }
-  }
 
 
 }
