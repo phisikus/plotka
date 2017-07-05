@@ -15,7 +15,7 @@ trait Talker {
   def send(recipient: NetworkPeer, messageBody: Serializable)
 
   /**
-    *
+    * Shutdown all connections with peers
     */
   def shutdown()
 }

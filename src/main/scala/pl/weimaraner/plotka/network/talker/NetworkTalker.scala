@@ -5,12 +5,13 @@ import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.SocketChannel
 
+import com.typesafe.scalalogging.Logger
 import pl.weimaraner.plotka.model.{NetworkMessage, NetworkPeer, Peer}
 
 import scala.collection.concurrent.TrieMap
 
 class NetworkTalker(localPeer: Peer) extends Talker {
-
+  private val logger = Logger(classOf[NetworkTalker])
   private val peerChannelMap: TrieMap[NetworkPeer, SocketChannel] = new TrieMap()
   private val bufferWithZero: ByteBuffer = ByteBuffer.wrap(getIntAsBytes(0))
 
@@ -20,6 +21,7 @@ class NetworkTalker(localPeer: Peer) extends Talker {
     val messageAsBytes = getMessageAsBytes(message)
     val bufferWithMessageSize = ByteBuffer.wrap(getIntAsBytes(messageAsBytes.length))
     val bufferWithMessage = ByteBuffer.wrap(messageAsBytes)
+    logger.debug(s"Sending message to: ${clientChannel.getRemoteAddress}, content: $message")
     clientChannel.write(Array(bufferWithMessageSize, bufferWithMessage))
   }
 
