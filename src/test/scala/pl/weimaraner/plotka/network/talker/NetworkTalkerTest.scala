@@ -18,12 +18,12 @@ class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
   private val localPeer = NetworkPeer(
     testNodeConfiguration.id, testNodeConfiguration.address,
     testNodeConfiguration.port)
+  private val testMessageConsumer = new QueueMessageHandler
 
 
   test("Should send message using NetworkTalker") {
-    val testMessageConsumer = new QueueMessageHandler
-    val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
     val testTalker = new NetworkTalker(localPeer)
+    val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
     val testMessage = NetworkMessage(localPeer, localPeer, getRandomTestMessageBody)
     testListener.start()
 
@@ -37,9 +37,8 @@ class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
   }
 
   test("Should send multiple messages using NetworkTalker") {
-    val testMessageConsumer = new QueueMessageHandler
-    val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
     val testTalker = new NetworkTalker(localPeer)
+    val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
     val testMessages = getMultipleRandomTestMessages(10000)
     testListener.start()
 

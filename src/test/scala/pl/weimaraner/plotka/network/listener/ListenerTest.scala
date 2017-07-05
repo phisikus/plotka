@@ -18,6 +18,9 @@ import scala.annotation.tailrec
 
 class ListenerTest extends FunSuite with Eventually with Matchers {
 
+  private val TestMessageCount = 1000
+  private val testTimeout = timeout(Span(30, Seconds))
+  private val testCheckInterval = interval(Span(300, Millis))
 
   test("Should start listener and receive message") {
     val testNodeConfiguration = BasicNodeConfiguration(peers = Nil, port = 3031)
@@ -34,17 +37,16 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     testListener.stop()
   }
 
-
   test("Should start listener and receive multiple messages") {
-    val testNodeConfiguration = BasicNodeConfiguration(peers = Nil, port = 3035)
+    val testNodeConfiguration = BasicNodeConfiguration(peers = Nil, port = 3032)
     val testMessageConsumer = new QueueMessageHandler
-    val testMessages: List[NetworkMessage] = getTestMessages(1000)
+    val testMessages: List[NetworkMessage] = getTestMessages(TestMessageCount)
     val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
 
     testListener.start()
     sendMessagesToListener(testNodeConfiguration, testMessages)
 
-    eventually {
+    eventually(testTimeout, testCheckInterval) {
       testMessageConsumer.receivedMessages should contain allElementsOf testMessages
     }
     testListener.stop()
@@ -53,7 +55,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
   test("Should start listener and receive multiple messages from multiple connections") {
     val testNodeConfiguration = BasicNodeConfiguration(peers = Nil, port = 3033)
     val testMessageConsumer = new QueueMessageHandler
-    val testMessages: List[NetworkMessage] = getTestMessages(1000)
+    val testMessages: List[NetworkMessage] = getTestMessages(TestMessageCount)
     val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
 
     testListener.start()
@@ -61,7 +63,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
       sendMessagesToListener(testNodeConfiguration, List(msg))
     })
 
-    eventually(timeout(Span(30, Seconds)), interval(Span(300, Millis))) {
+    eventually(testTimeout, testCheckInterval) {
       testMessageConsumer.receivedMessages should contain allElementsOf testMessages
     }
     testListener.stop()
