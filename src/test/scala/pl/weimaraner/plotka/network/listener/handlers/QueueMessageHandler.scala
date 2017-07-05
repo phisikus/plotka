@@ -1,4 +1,4 @@
-package pl.weimaraner.plotka.network.listener.utils
+package pl.weimaraner.plotka.network.listener.handlers
 
 import pl.weimaraner.plotka.model.{Message, NetworkMessageConsumer, NetworkPeer, Peer}
 

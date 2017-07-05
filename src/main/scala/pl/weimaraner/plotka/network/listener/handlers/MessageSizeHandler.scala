@@ -36,7 +36,7 @@ class MessageSizeHandler(messageConsumer: NetworkMessageConsumer,
     try
       channel.close()
     catch {
-      case e : IOException => logger.debug(s"Exception thrown during closeTransmission(): $e")
+      case e: IOException => logger.debug(s"Exception thrown during closeTransmission(): $e")
     }
   }
 

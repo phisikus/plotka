@@ -9,7 +9,7 @@ trait Talker {
   /**
     * Sends message of given body to specified recipient
     *
-    * @param recipient recipient of the message
+    * @param recipient   recipient of the message
     * @param messageBody contents of the message
     */
   def send(recipient: NetworkPeer, messageBody: Serializable)
