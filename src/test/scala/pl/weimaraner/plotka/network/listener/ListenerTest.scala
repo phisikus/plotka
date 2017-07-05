@@ -12,10 +12,9 @@ import org.scalatest.{FunSuite, Matchers}
 import pl.weimaraner.plotka.conf.model.BasicNodeConfiguration
 import pl.weimaraner.plotka.model._
 import pl.weimaraner.plotka.network.listener.dto.TestMessage
-import pl.weimaraner.plotka.network.listener.utils.QueueMessageHandler
+import pl.weimaraner.plotka.network.listener.handlers.QueueMessageHandler
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 
 class ListenerTest extends FunSuite with Eventually with Matchers {
 
@@ -37,9 +36,9 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
 
 
   test("Should start listener and receive multiple messages") {
-    val testNodeConfiguration = BasicNodeConfiguration(peers = Nil, port = 3032)
+    val testNodeConfiguration = BasicNodeConfiguration(peers = Nil, port = 3035)
     val testMessageConsumer = new QueueMessageHandler
-    val testMessages: List[NetworkMessage] = getTestMessages(100)
+    val testMessages: List[NetworkMessage] = getTestMessages(1000)
     val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
 
     testListener.start()
@@ -54,7 +53,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
   test("Should start listener and receive multiple messages from multiple connections") {
     val testNodeConfiguration = BasicNodeConfiguration(peers = Nil, port = 3033)
     val testMessageConsumer = new QueueMessageHandler
-    val testMessages: List[NetworkMessage] = getTestMessages(100)
+    val testMessages: List[NetworkMessage] = getTestMessages(1000)
     val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
 
     testListener.start()
@@ -133,8 +132,6 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     val testMessage = NetworkMessage(testPeer, testPeer, TestMessage())
     testMessage
   }
-
-
 
 
 }

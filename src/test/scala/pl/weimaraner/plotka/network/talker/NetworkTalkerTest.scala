@@ -10,7 +10,7 @@ import pl.weimaraner.plotka.conf.model.BasicNodeConfiguration
 import pl.weimaraner.plotka.model._
 import pl.weimaraner.plotka.network.listener.Listener
 import pl.weimaraner.plotka.network.listener.dto.TestMessage
-import pl.weimaraner.plotka.network.listener.utils.QueueMessageHandler
+import pl.weimaraner.plotka.network.listener.handlers.QueueMessageHandler
 
 class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
 
@@ -30,7 +30,7 @@ class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
     testTalker.send(testMessage.recipient.asInstanceOf[NetworkPeer], testMessage.message)
 
     eventually(timeout(Span(10, Seconds)), interval(Span(300, Millis))) {
-      testMessageConsumer.receivedMessages should contain (testMessage)
+      testMessageConsumer.receivedMessages should contain(testMessage)
     }
     testListener.stop()
 
@@ -40,10 +40,10 @@ class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
     val testMessageConsumer = new QueueMessageHandler
     val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
     val testTalker = new NetworkTalker(localPeer)
-    val testMessages = getMultipleRandomTestMessages(1000)
+    val testMessages = getMultipleRandomTestMessages(10000)
     testListener.start()
 
-    testMessages.foreach(testMessage => {
+    testMessages.par.foreach(testMessage => {
       testTalker.send(testMessage.recipient.asInstanceOf[NetworkPeer], testMessage.message)
     })
 
@@ -56,13 +56,11 @@ class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
   }
 
   private def getMultipleRandomTestMessages(count: Int): List[NetworkMessage] = {
-    count match {
-      case x if x > 0 => NetworkMessage(
-        localPeer,
-        localPeer,
-        getRandomTestMessageBody) :: getMultipleRandomTestMessages(count - 1)
-      case 0 => Nil
-    }
+    Range(0, count).map(i => NetworkMessage(
+      localPeer,
+      localPeer,
+      getRandomTestMessageBody)).toList
+
   }
 
   private def getRandomTestMessageBody: TestMessage = {
