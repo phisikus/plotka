@@ -77,8 +77,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
       NetworkMessage(sender, recipient, TestMessage(getRandomString))
     }
 
-    1.to(count)
-      .map(randomMessageBuilder).toList
+    Range(0, count).map(randomMessageBuilder).toList
   }
 
 
