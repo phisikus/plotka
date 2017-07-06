@@ -26,6 +26,7 @@ class MessageSizeHandler(messageConsumer: NetworkMessageConsumer,
     val messageSize = messageSizeBuffer.getInt
     Option(messageSize) match {
       case Some(x) if x > 0 => orderMessageRead(messageSize, state)
+      case Some(x) if x < 0 => logger.debug(s"The message size is incorrect! (${channel.getRemoteAddress})")
       case Some(0) => closeTransmission()
       case None => logger.debug(s"The message size could not be determined for ${channel.getRemoteAddress}")
     }

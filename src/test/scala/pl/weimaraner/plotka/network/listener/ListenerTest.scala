@@ -32,7 +32,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     sendMessageToListener(testNodeConfiguration)
 
     eventually {
-      testMessageConsumer.receivedMessages.dequeue() should equal(expectedMessage)
+      testMessageConsumer.receivedMessages.head should equal(expectedMessage)
     }
     testListener.stop()
   }

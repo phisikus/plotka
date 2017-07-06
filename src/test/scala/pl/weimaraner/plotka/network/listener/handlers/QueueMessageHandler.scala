@@ -5,9 +5,9 @@ import pl.weimaraner.plotka.model.{Message, NetworkMessageConsumer, NetworkPeer,
 import scala.collection.mutable
 
 class QueueMessageHandler extends NetworkMessageConsumer {
-  val receivedMessages: mutable.Queue[Message[NetworkPeer, Peer, Serializable]] = mutable.Queue()
+  val receivedMessages: mutable.MutableList[Message[NetworkPeer, Peer, Serializable]] = mutable.MutableList()
 
   override def consumeMessage(message: Message[NetworkPeer, Peer, Serializable]): Unit = {
-    receivedMessages.enqueue(message)
+    receivedMessages += message
   }
 }
