@@ -10,7 +10,7 @@ import pl.weimaraner.plotka.conf.model.BasicNodeConfiguration
 import pl.weimaraner.plotka.model._
 import pl.weimaraner.plotka.network.listener.Listener
 import pl.weimaraner.plotka.network.listener.dto.TestMessage
-import pl.weimaraner.plotka.network.listener.handlers.QueueMessageHandler
+import pl.weimaraner.plotka.network.listener.handlers.ListMessageHandler
 
 class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
 
@@ -18,7 +18,7 @@ class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
   private val localPeer = NetworkPeer(
     testNodeConfiguration.id, testNodeConfiguration.address,
     testNodeConfiguration.port)
-  private val testMessageConsumer = new QueueMessageHandler
+  private val testMessageConsumer = new ListMessageHandler
 
 
   test("Should send message using NetworkTalker") {
