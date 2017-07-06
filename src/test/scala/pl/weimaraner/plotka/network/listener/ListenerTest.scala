@@ -19,7 +19,7 @@ import scala.annotation.tailrec
 class ListenerTest extends FunSuite with Eventually with Matchers {
 
   private val TestMessageCount = 1000
-  private val testTimeout = timeout(Span(30, Seconds))
+  private val testTimeout = timeout(Span(60, Seconds))
   private val testCheckInterval = interval(Span(300, Millis))
 
   test("Should start listener and receive message") {
