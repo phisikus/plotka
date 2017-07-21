@@ -44,7 +44,7 @@ class MessageSizeHandler(messageConsumer: NetworkMessageConsumer,
   def orderMessageRead(messageSize: Int, state: Unit): Unit = {
     logger.debug(s"Receiving message of size $messageSize from: ${channel.getRemoteAddress}")
     val messageBuffer = ByteBuffer.allocate(messageSize)
-    channel.read(messageBuffer, state, new MessageContentHandler(messageConsumer, channel, messageBuffer))
+    channel.read(messageBuffer, state, new MessageContentHandler(messageConsumer, channel, messageBuffer, messageSize))
   }
 
 

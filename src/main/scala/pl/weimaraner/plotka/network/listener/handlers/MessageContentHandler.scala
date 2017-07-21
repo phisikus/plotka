@@ -11,20 +11,31 @@ import pl.weimaraner.plotka.model._
   * This handler is called after read operation and performs deserialization of incoming message.
   * After that the message consumer is called followed by an attempt to order the next read operation.
   *
-  * @param messageConsumer the message consumer that will be called after the message is received
-  * @param messageBuffer   buffer containing received incoming message
-  * @param channel         server channel
+  * @param messageConsumer  the message consumer that will be called after the message is received
+  * @param channel          server channel
+  * @param messageBuffer    buffer containing received incoming message
+  * @param expectedDataSize expected size of data in buffer
   */
 class MessageContentHandler(messageConsumer: NetworkMessageConsumer,
                             channel: AsynchronousSocketChannel,
-                            messageBuffer: ByteBuffer) extends CompletionHandler[Integer, Unit] {
+                            messageBuffer: ByteBuffer,
+                            expectedDataSize: Int) extends CompletionHandler[Integer, Unit] {
   private val logger = Logger(classOf[MessageContentHandler])
 
   override def completed(bytesRead: Integer, state: Unit): Unit = {
+    if (messageBuffer.position < expectedDataSize) {
+      channel.read(messageBuffer, state, this)
+    } else {
+      processBufferData(state)
+    }
+  }
+
+  private def processBufferData(state: Unit) = {
     readMessage(messageBuffer) match {
       case Some(message) => messageConsumer.consumeMessage(message)
       case None => logger.debug("Could not read message.")
     }
+
     readNextMessageSize(state)
   }
 
