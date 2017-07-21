@@ -8,7 +8,7 @@ import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{FunSuite, Matchers}
 import pl.weimaraner.plotka.conf.model.BasicNodeConfiguration
 import pl.weimaraner.plotka.model._
-import pl.weimaraner.plotka.network.listener.Listener
+import pl.weimaraner.plotka.network.listener.NetworkListener
 import pl.weimaraner.plotka.network.listener.dto.TestMessage
 import pl.weimaraner.plotka.network.listener.handlers.ListMessageHandler
 
@@ -23,7 +23,7 @@ class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
 
   test("Should send message using NetworkTalker") {
     val testTalker = new NetworkTalker(localPeer)
-    val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
+    val testListener = new NetworkListener(testNodeConfiguration, testMessageConsumer)
     val testMessage = NetworkMessage(localPeer, localPeer, getRandomTestMessageBody)
     testListener.start()
 
@@ -38,7 +38,7 @@ class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
 
   test("Should send multiple messages using NetworkTalker") {
     val testTalker = new NetworkTalker(localPeer)
-    val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
+    val testListener = new NetworkListener(testNodeConfiguration, testMessageConsumer)
     val testMessages = getMultipleRandomTestMessages(10000)
     testListener.start()
 

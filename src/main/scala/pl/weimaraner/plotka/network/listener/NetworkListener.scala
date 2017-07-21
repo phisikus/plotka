@@ -11,14 +11,14 @@ import pl.weimaraner.plotka.model.NetworkMessageConsumer
 import pl.weimaraner.plotka.network.listener.handlers.AcceptHandler
 
 /**
-  * Listener creates a network socket and services incoming connections and messages.
+  * NetworkListener creates a network socket and services incoming connections and messages.
   *
   * @param nodeConfiguration initial configuration
   * @param messageConsumer   handler that will be called for each received message
   */
-class Listener(val nodeConfiguration: NodeConfiguration,
-               val messageConsumer: NetworkMessageConsumer) {
-  private val logger = Logger(classOf[Listener])
+class NetworkListener(val nodeConfiguration: NodeConfiguration,
+                      val messageConsumer: NetworkMessageConsumer) {
+  private val logger = Logger(classOf[NetworkListener])
   private val serverThreadGroup = AsynchronousChannelGroup.withFixedThreadPool(10, Executors.defaultThreadFactory())
   private val serverSocketAddress = new InetSocketAddress(nodeConfiguration.address, nodeConfiguration.port)
   private var serverSocketChannel: AsynchronousServerSocketChannel = _
@@ -26,7 +26,7 @@ class Listener(val nodeConfiguration: NodeConfiguration,
   def start(): Unit = {
     serverSocketChannel = AsynchronousServerSocketChannel.open(serverThreadGroup).bind(serverSocketAddress)
     val acceptHandler = new AcceptHandler(messageConsumer, serverSocketChannel)
-    logger.info(s"Listener is waiting for connections: $serverSocketAddress")
+    logger.info(s"NetworkListener is waiting for connections: $serverSocketAddress")
 
     serverSocketChannel.accept((), acceptHandler)
   }

@@ -16,7 +16,7 @@ import pl.weimaraner.plotka.network.listener.handlers.ListMessageHandler
 
 import scala.annotation.tailrec
 
-class ListenerTest extends FunSuite with Eventually with Matchers {
+class NetworkListenerTest extends FunSuite with Eventually with Matchers {
 
   private val TestMessageCount = 1000
   private val testTimeout = timeout(Span(60, Seconds))
@@ -26,7 +26,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     val testNodeConfiguration = BasicNodeConfiguration(peers = Nil, port = 3031)
     val testMessageConsumer = new ListMessageHandler
     val expectedMessage: Message[Peer, Peer, Serializable] = getTestMessage(testNodeConfiguration)
-    val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
+    val testListener = new NetworkListener(testNodeConfiguration, testMessageConsumer)
 
     testListener.start()
     sendMessageToListener(testNodeConfiguration)
@@ -41,7 +41,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     val testNodeConfiguration = BasicNodeConfiguration(peers = Nil, port = 3032)
     val testMessageConsumer = new ListMessageHandler
     val testMessages: List[NetworkMessage] = getTestMessages(TestMessageCount)
-    val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
+    val testListener = new NetworkListener(testNodeConfiguration, testMessageConsumer)
 
     testListener.start()
     sendMessagesToListener(testNodeConfiguration, testMessages)
@@ -56,7 +56,7 @@ class ListenerTest extends FunSuite with Eventually with Matchers {
     val testNodeConfiguration = BasicNodeConfiguration(peers = Nil, port = 3033)
     val testMessageConsumer = new ListMessageHandler
     val testMessages: List[NetworkMessage] = getTestMessages(TestMessageCount)
-    val testListener = new Listener(testNodeConfiguration, testMessageConsumer)
+    val testListener = new NetworkListener(testNodeConfiguration, testMessageConsumer)
 
     testListener.start()
     testMessages.par.foreach(msg => {
