@@ -1,7 +1,7 @@
 package pl.weimaraner.plotka.network.talker
 
 import java.io.{ByteArrayOutputStream, ObjectOutputStream}
-import java.net.InetSocketAddress
+import java.net.{InetSocketAddress, StandardSocketOptions}
 import java.nio.ByteBuffer
 import java.nio.channels._
 
@@ -19,9 +19,19 @@ class NetworkTalker(localPeer: Peer) extends Talker {
   override def send(recipient: NetworkPeer, messageBody: Serializable): Unit = {
     val message = NetworkMessage(localPeer, recipient, messageBody)
     val messageAsBytes = getMessageAsBytes(message)
-    val bufferWithMessageSize = ByteBuffer.wrap(getIntAsBytes(messageAsBytes.length))
-    val bufferWithMessage = ByteBuffer.wrap(messageAsBytes)
-    sendWithRetry(recipient, bufferWithMessageSize, bufferWithMessage)
+    val messageSizeAsBytes = getIntAsBytes(messageAsBytes.length)
+    val messageBuffer = buildBufferForMessage(messageAsBytes, messageSizeAsBytes)
+
+    sendWithRetry(recipient, messageBuffer)
+  }
+
+  private def buildBufferForMessage(messageAsBytes: Array[Byte], messageSizeAsBytes: Array[Byte]) = {
+    val buffer = ByteBuffer
+      .allocate(messageSizeAsBytes.length + messageAsBytes.length)
+      .put(messageSizeAsBytes)
+      .put(messageAsBytes)
+    buffer.rewind()
+    buffer
   }
 
   def getIntAsBytes(number: Int): Array[Byte] = {
@@ -40,19 +50,19 @@ class NetworkTalker(localPeer: Peer) extends Talker {
   }
 
   @tailrec
-  private def sendWithRetry(recipient: NetworkPeer,
-                           bufferWithMessageSize: ByteBuffer,
-                           bufferWithMessage: ByteBuffer): Unit = {
+  private def sendWithRetry(recipient: NetworkPeer, bufferWithMessage: ByteBuffer): Unit = {
     val clientChannel: SocketChannel = getOpenChannelForPeer(recipient)
-    val buffersToSend = Array(bufferWithMessageSize, bufferWithMessage)
-    logger.debug(s"Sending message to: ${clientChannel.getRemoteAddress}")
+    logger.debug(s"Sending data to: ${clientChannel.getRemoteAddress}")
     try {
-      clientChannel.write(buffersToSend)
+      while (bufferWithMessage.hasRemaining) {
+        clientChannel.write(bufferWithMessage)
+      }
     }
     catch {
-      case e: Exception =>
-        logger.debug(s"Failed to send message, retrying. Reason: $e")
-        sendWithRetry(recipient, bufferWithMessageSize, bufferWithMessage)
+      case exception: Exception =>
+        logger.debug(s"Failed to send message, retrying. Reason: $exception")
+        bufferWithMessage.rewind()
+        sendWithRetry(recipient, bufferWithMessage)
     }
 
   }
@@ -81,6 +91,8 @@ class NetworkTalker(localPeer: Peer) extends Talker {
   private def buildChannelForPeer(recipient: NetworkPeer): SocketChannel = {
     val hostAddress = new InetSocketAddress(recipient.address, recipient.port)
     val clientChannel = SocketChannel.open(hostAddress)
+    clientChannel.setOption(StandardSocketOptions.SO_SNDBUF, new Integer(8))
+
     clientChannel
   }
 
