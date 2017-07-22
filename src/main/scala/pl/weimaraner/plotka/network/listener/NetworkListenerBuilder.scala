@@ -1,5 +1,6 @@
 package pl.weimaraner.plotka.network.listener
 
+import java.net.{InetAddress, UnknownHostException}
 import java.util.UUID
 
 import pl.weimaraner.plotka.conf.PeerConfiguration
@@ -9,7 +10,7 @@ import pl.weimaraner.plotka.model.NetworkMessageConsumer
 class NetworkListenerBuilder {
   private var id: String = UUID.randomUUID().toString
   private var port: Int = 3030
-  private var address: String = "0.0.0.0"
+  private var address: String = getLocalAddress
   private var peers: List[PeerConfiguration] = List()
   private var messageConsumer: NetworkMessageConsumer = msg => {}
 
@@ -47,6 +48,14 @@ class NetworkListenerBuilder {
       BasicNodeConfiguration(id, port, address, peers),
       messageConsumer
     )
+  }
+
+  private def getLocalAddress: String = {
+    try {
+      InetAddress.getLocalHost.getHostAddress
+    } catch {
+      case e : UnknownHostException => "127.0.0.1"
+    }
   }
 
 }
