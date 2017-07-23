@@ -25,7 +25,7 @@ class NetworkTalker(localPeer: Peer) extends Talker {
     sendWithRetry(recipient, messageBuffer)
   }
 
-  def getIntAsBytes(number: Int): Array[Byte] = {
+  private def getIntAsBytes(number: Int): Array[Byte] = {
     val intBuffer = ByteBuffer.allocate(4)
     intBuffer.putInt(number)
     intBuffer.array()
