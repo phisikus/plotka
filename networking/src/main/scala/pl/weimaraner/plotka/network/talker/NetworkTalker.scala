@@ -99,8 +99,6 @@ class NetworkTalker(localPeer: Peer) extends Talker {
   private def buildChannelForPeer(recipient: NetworkPeer): SocketChannel = {
     val hostAddress = new InetSocketAddress(recipient.address, recipient.port)
     val clientChannel = SocketChannel.open(hostAddress)
-    clientChannel.setOption(StandardSocketOptions.SO_SNDBUF, new Integer(8))
-
     clientChannel
   }
 
