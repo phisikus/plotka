@@ -7,6 +7,8 @@ import java.nio.channels.{AsynchronousSocketChannel, CompletionHandler}
 import com.typesafe.scalalogging.Logger
 import pl.weimaraner.plotka.model.NetworkMessageConsumer
 
+import scala.util.{Success, Try}
+
 /**
   * This handler is called when the size of the message is received.
   * It triggers a read operation for the incoming message.
@@ -49,7 +51,11 @@ class MessageSizeHandler(messageConsumer: NetworkMessageConsumer,
 
 
   override def failed(throwable: Throwable, state: Unit): Unit = {
-    logger.debug(s"Could not read message size from:  ${channel.getRemoteAddress} caused by: $throwable")
+    Try(channel.getRemoteAddress) match {
+      case Success(address) => logger.debug(s"Could not read message size from:  $address caused by: $throwable")
+      case _ => logger.debug(s"Could not read message size - caused by: $throwable")
+    }
+
   }
 
 }
