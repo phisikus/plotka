@@ -33,8 +33,10 @@ class NetworkListener(val nodeConfiguration: NodeConfiguration,
 
   def stop(): Unit = {
     logger.info("Stopping the listener...")
-    try
+    try {
       serverSocketChannel.close()
+      serverThreadGroup.shutdown()
+    }
     catch {
       case e: IOException => logger.debug(s"Exception was thrown during stop(): $e")
     }
