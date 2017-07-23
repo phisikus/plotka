@@ -25,15 +25,6 @@ class NetworkTalker(localPeer: Peer) extends Talker {
     sendWithRetry(recipient, messageBuffer)
   }
 
-  private def buildBufferForMessage(messageAsBytes: Array[Byte], messageSizeAsBytes: Array[Byte]) = {
-    val buffer = ByteBuffer
-      .allocate(messageSizeAsBytes.length + messageAsBytes.length)
-      .put(messageSizeAsBytes)
-      .put(messageAsBytes)
-    buffer.rewind()
-    buffer
-  }
-
   def getIntAsBytes(number: Int): Array[Byte] = {
     val intBuffer = ByteBuffer.allocate(4)
     intBuffer.putInt(number)
@@ -47,6 +38,15 @@ class NetworkTalker(localPeer: Peer) extends Talker {
       channel.close()
     })
     peerChannelMap.clear()
+  }
+
+  private def buildBufferForMessage(messageAsBytes: Array[Byte], messageSizeAsBytes: Array[Byte]) = {
+    val buffer = ByteBuffer
+      .allocate(messageSizeAsBytes.length + messageAsBytes.length)
+      .put(messageSizeAsBytes)
+      .put(messageAsBytes)
+    buffer.rewind()
+    buffer
   }
 
   @tailrec
@@ -70,18 +70,26 @@ class NetworkTalker(localPeer: Peer) extends Talker {
   private def getOpenChannelForPeer(recipient: NetworkPeer): SocketChannel = {
     val retrievedChannel: SocketChannel = getChannelForPeer(recipient)
 
-    if (retrievedChannel.isConnectionPending && retrievedChannel.finishConnect()) {
-      return retrievedChannel
-    }
-
-    if (retrievedChannel.isOpen && retrievedChannel.isConnected) {
+    if (waitForConnection(retrievedChannel)) {
       retrievedChannel
     } else {
-      val newChannel = buildChannelForPeer(recipient)
-      peerChannelMap.put(recipient, newChannel)
-      newChannel
+      if (isChannelConnected(retrievedChannel)) {
+        retrievedChannel
+      } else {
+        val newChannel = buildChannelForPeer(recipient)
+        peerChannelMap.put(recipient, newChannel)
+        newChannel
+      }
     }
 
+  }
+
+  private def isChannelConnected(retrievedChannel: SocketChannel) = {
+    retrievedChannel.isOpen && retrievedChannel.isConnected
+  }
+
+  private def waitForConnection(retrievedChannel: SocketChannel) = {
+    retrievedChannel.isConnectionPending && retrievedChannel.finishConnect()
   }
 
   private def getChannelForPeer(recipient: NetworkPeer): SocketChannel = {
