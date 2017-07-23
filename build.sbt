@@ -1,26 +1,21 @@
-name := "plotka"
+lazy val config = project.in(file("config"))
+  .settings(name := "plotka-config")
+  .settings(Common.settings)
+  .settings(Common.dependencies)
 
-version := "0.0.1"
+lazy val networking = project.in(file("networking"))
+  .settings(name := "plotka-networking")
+  .settings(Common.settings)
+  .settings(Common.dependencies)
+  .dependsOn(config)
 
-scalaVersion := "2.12.2"
-
-publishMavenStyle := true
-
-mainClass in Compile := Some("pl.weimaraner.plotka.EntryPoint")
-
-libraryDependencies ++= Seq(
-  // Configuration
-  "com.typesafe" % "config" % "1.3.1",
-
-  // Logging
-  "ch.qos.logback" % "logback-classic" % "1.1.7",
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
-
-  // Apache Commons
-  "org.apache.commons" % "commons-lang3" % "3.6",
+lazy val plotka = project.in(file("."))
+  .settings(name := "plotka")
+  .settings(Common.settings)
+  .settings(Common.dependencies)
+  .settings(mainClass in Compile := Some("pl.weimaraner.plotka.EntryPoint"))
+  .aggregate(config, networking)
+  .dependsOn(config, networking)
 
 
-  // Testing
-  "org.scalatest" % "scalatest_2.12" % "3.0.1" % Test
-)
 
