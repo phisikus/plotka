@@ -27,8 +27,9 @@ class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
     val testMessage = NetworkMessage(localPeer, localPeer, getRandomTestMessageBody)
     testListener.start()
 
-    testTalker.send(testMessage.recipient.asInstanceOf[NetworkPeer], testMessage.message)
+    val result = testTalker.send(testMessage.recipient.asInstanceOf[NetworkPeer], testMessage.message)
 
+    assert(result.isSuccess)
     eventually(timeout(Span(10, Seconds)), interval(Span(300, Millis))) {
       testMessageConsumer.receivedMessages should contain(testMessage)
     }
@@ -42,9 +43,9 @@ class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
     val testMessages = getMultipleRandomTestMessages(10000)
     testListener.start()
 
-    testMessages.par.foreach(testMessage => {
+    testMessages.par.map(testMessage => {
       testTalker.send(testMessage.recipient.asInstanceOf[NetworkPeer], testMessage.message)
-    })
+    }).foreach(sendResult => assert(sendResult.isSuccess))
 
 
     eventually(timeout(Span(10, Seconds)), interval(Span(300, Millis))) {

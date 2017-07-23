@@ -1,7 +1,7 @@
 package pl.weimaraner.plotka.network.talker
 
 import java.io.{ByteArrayOutputStream, ObjectOutputStream}
-import java.net.{InetSocketAddress, StandardSocketOptions}
+import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels._
 
@@ -10,19 +10,22 @@ import pl.weimaraner.plotka.model.{NetworkMessage, NetworkPeer, Peer}
 
 import scala.annotation.tailrec
 import scala.collection.concurrent.TrieMap
+import scala.util.Try
 
 class NetworkTalker(localPeer: Peer) extends Talker {
   private val logger = Logger(classOf[NetworkTalker])
   private val peerChannelMap: TrieMap[NetworkPeer, SocketChannel] = new TrieMap()
   private val bufferWithZero: ByteBuffer = ByteBuffer.wrap(getIntAsBytes(0))
 
-  override def send(recipient: NetworkPeer, messageBody: Serializable): Unit = {
-    val message = NetworkMessage(localPeer, recipient, messageBody)
-    val messageAsBytes = getMessageAsBytes(message)
-    val messageSizeAsBytes = getIntAsBytes(messageAsBytes.length)
-    val messageBuffer = buildBufferForMessage(messageAsBytes, messageSizeAsBytes)
+  override def send(recipient: NetworkPeer, messageBody: Serializable): Try[Unit] = {
+    Try({
+      val message = NetworkMessage(localPeer, recipient, messageBody)
+      val messageAsBytes = getMessageAsBytes(message)
+      val messageSizeAsBytes = getIntAsBytes(messageAsBytes.length)
+      val messageBuffer = buildBufferForMessage(messageAsBytes, messageSizeAsBytes)
 
-    sendWithRetry(recipient, messageBuffer)
+      sendWithRetry(recipient, messageBuffer)
+    })
   }
 
   private def getIntAsBytes(number: Int): Array[Byte] = {
