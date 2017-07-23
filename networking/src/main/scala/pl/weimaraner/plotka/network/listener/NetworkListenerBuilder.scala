@@ -61,5 +61,5 @@ class NetworkListenerBuilder {
 }
 
 object NetworkListenerBuilder {
-  def apply() = new NetworkListenerBuilder
+  def apply(): NetworkListenerBuilder = new NetworkListenerBuilder
 }
