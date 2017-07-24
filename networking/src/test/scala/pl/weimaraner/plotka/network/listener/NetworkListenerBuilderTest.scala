@@ -1,6 +1,7 @@
 package pl.weimaraner.plotka.network.listener
 
 import org.scalatest.concurrent.Eventually
+import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{FunSuite, Matchers}
 import pl.weimaraner.plotka.conf.model.BasicPeerConfiguration
 import pl.weimaraner.plotka.model.NetworkPeer
@@ -25,7 +26,7 @@ class NetworkListenerBuilderTest extends FunSuite with Eventually with Matchers 
     testListener.start()
     testTalker.send(localPeer, TestMessage())
 
-    eventually {
+    eventually(timeout(Span(10, Seconds)), interval(Span(300, Millis))) {
       messageReceived shouldBe true
     }
 

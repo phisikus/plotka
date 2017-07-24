@@ -37,6 +37,25 @@ class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
 
   }
 
+  test("Should send message asynchronously using NetworkTalker") {
+    val testTalker = new NetworkTalker(localPeer)
+    val testListener = new NetworkListener(testNodeConfiguration, testMessageConsumer)
+    val testMessage = NetworkMessage(localPeer, localPeer, getRandomTestMessageBody)
+    testListener.start()
+
+    var wasCallbackSuccessful = false
+    testTalker.send(testMessage.recipient.asInstanceOf[NetworkPeer],
+      testMessage.message,
+      sendResult => wasCallbackSuccessful = sendResult.isSuccess)
+
+    eventually(timeout(Span(10, Seconds)), interval(Span(300, Millis))) {
+      testMessageConsumer.receivedMessages should contain(testMessage)
+      wasCallbackSuccessful should equal(true)
+    }
+    testListener.stop()
+
+  }
+
   test("Should send multiple messages using NetworkTalker") {
     val testTalker = new NetworkTalker(localPeer)
     val testListener = new NetworkListener(testNodeConfiguration, testMessageConsumer)

@@ -4,6 +4,7 @@ import java.io.{ByteArrayOutputStream, ObjectOutputStream}
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels._
+import java.util.concurrent.Executors
 
 import com.typesafe.scalalogging.Logger
 import pl.weimaraner.plotka.model.{NetworkMessage, NetworkPeer, Peer}
@@ -16,6 +17,13 @@ class NetworkTalker(localPeer: Peer) extends Talker {
   private val logger = Logger(classOf[NetworkTalker])
   private val peerChannelMap: TrieMap[NetworkPeer, SocketChannel] = new TrieMap()
   private val bufferWithZero: ByteBuffer = ByteBuffer.wrap(getIntAsBytes(0))
+  private val threadPool = Executors.newCachedThreadPool()
+
+  override def send(recipient: NetworkPeer,
+                    messageBody: Serializable,
+                    callback: (Try[Unit]) => Unit): Unit = {
+    threadPool.execute(() => callback(send(recipient, messageBody)))
+  }
 
   override def send(recipient: NetworkPeer, messageBody: Serializable): Try[Unit] = {
     Try({
@@ -28,12 +36,6 @@ class NetworkTalker(localPeer: Peer) extends Talker {
     })
   }
 
-  private def getIntAsBytes(number: Int): Array[Byte] = {
-    val intBuffer = ByteBuffer.allocate(4)
-    intBuffer.putInt(number)
-    intBuffer.array()
-  }
-
   override def shutdown(): Unit = {
     peerChannelMap.foreach(pair => {
       val channel = pair._2
@@ -41,6 +43,12 @@ class NetworkTalker(localPeer: Peer) extends Talker {
       channel.close()
     })
     peerChannelMap.clear()
+  }
+
+  private def getIntAsBytes(number: Int): Array[Byte] = {
+    val intBuffer = ByteBuffer.allocate(4)
+    intBuffer.putInt(number)
+    intBuffer.array()
   }
 
   private def buildBufferForMessage(messageAsBytes: Array[Byte], messageSizeAsBytes: Array[Byte]) = {
