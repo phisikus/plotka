@@ -50,7 +50,7 @@ class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
 
     eventually(timeout(Span(10, Seconds)), interval(Span(300, Millis))) {
       testMessageConsumer.receivedMessages should contain(testMessage)
-      wasCallbackSuccessful should equal(true)
+      wasCallbackSuccessful shouldBe true
     }
     testListener.stop()
 
