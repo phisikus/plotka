@@ -5,6 +5,7 @@ import scoverage.ScoverageKeys.{coverageEnabled, coverageFailOnMinimum, coverage
 object Common {
   val settings = Seq(
     version := "0.0.1",
+    organization := "eu.phisikus",
     scalaVersion := "2.12.2",
     publishMavenStyle := true
   )
@@ -40,6 +41,11 @@ object Common {
       "org.scalatest" % "scalatest_2.12" % "3.0.1" % Test
     )
   }
+
+  val publishingSettings = Seq(
+    publishTo := Some(Resolver.sftp("Phisikus Maven Repo","phisikus.platinum.linux.pl","public_html/maven2")),
+    isSnapshot := true
+  )
 
 
 }
