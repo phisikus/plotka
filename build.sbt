@@ -18,8 +18,6 @@ lazy val plotka = project.in(file("."))
   .settings(name := "plotka")
   .settings(Common.settings)
   .settings(Common.publishingSettings)
-  .settings(Common.dependencies)
-  .settings(mainClass in Compile := Some("pl.weimaraner.plotka.EntryPoint"))
   .aggregate(config, networking)
   .dependsOn(config, networking)
 
