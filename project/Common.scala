@@ -44,6 +44,7 @@ object Common {
 
   val publishingSettings = Seq(
     publishTo := Some(Resolver.sftp("Phisikus Maven Repo","phisikus.platinum.linux.pl","public_html/maven2")),
+    publishArtifact in Test := false,
     isSnapshot := true
   )
 
