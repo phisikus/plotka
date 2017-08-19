@@ -1,6 +1,6 @@
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import scala.Serializable;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 public class TextMessage implements Serializable {

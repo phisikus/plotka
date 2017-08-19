@@ -26,7 +26,12 @@ public class SimpleExample {
                 .build();
 
         testListener.start();
-        testTalker.send(localPeer, (Serializable) new TextMessage("Hello!"));
+        testTalker.send(localPeer, new TextMessage("Hello!"));
+        try {
+            Thread.sleep(3000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         testListener.stop();
     }
 
