@@ -11,7 +11,6 @@ object Common {
   )
 
   val testCoverageSettings = Seq(
-    coverageEnabled := true,
     coverageMinimum := 70,
     coverageFailOnMinimum := true
   )
