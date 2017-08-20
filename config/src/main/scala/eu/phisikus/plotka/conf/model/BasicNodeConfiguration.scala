@@ -4,8 +4,10 @@ import java.util.UUID
 
 import eu.phisikus.plotka.conf.{NodeConfiguration, PeerConfiguration}
 
-case class BasicNodeConfiguration(id: String = UUID.randomUUID().toString,
-                                  port: Int = 3030,
-                                  address: String = "0.0.0.0",
-                                  peers: List[PeerConfiguration]) extends NodeConfiguration
+import scala.beans.BeanProperty
+
+case class BasicNodeConfiguration(@BeanProperty id: String = UUID.randomUUID().toString,
+                                  @BeanProperty port: Int = 3030,
+                                  @BeanProperty address: String = "0.0.0.0",
+                                  @BeanProperty peers: List[PeerConfiguration]) extends NodeConfiguration
 

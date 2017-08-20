@@ -1,11 +1,14 @@
 package eu.phisikus.plotka.conf
 
+import scala.beans.BeanProperty
+
+
 trait NodeConfiguration {
-  def id: String
+  @BeanProperty def id: String
 
-  def port: Int
+  @BeanProperty def port: Int
 
-  def address: String
+  @BeanProperty def address: String
 
-  def peers: List[PeerConfiguration]
+  @BeanProperty def peers: List[PeerConfiguration]
 }

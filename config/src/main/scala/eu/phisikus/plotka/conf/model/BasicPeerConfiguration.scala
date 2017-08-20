@@ -2,5 +2,9 @@ package eu.phisikus.plotka.conf.model
 
 import eu.phisikus.plotka.conf.PeerConfiguration
 
-case class BasicPeerConfiguration(address: String, port: Int = 3030) extends PeerConfiguration
+import scala.beans.BeanProperty
+
+case class BasicPeerConfiguration(
+                                   @BeanProperty address: String,
+                                   @BeanProperty port: Int = 3030) extends PeerConfiguration
 

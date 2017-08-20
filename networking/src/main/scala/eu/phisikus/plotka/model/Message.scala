@@ -1,5 +1,7 @@
 package eu.phisikus.plotka.model
 
+import scala.beans.BeanProperty
+
 sealed abstract class Message[S, R, M <: Serializable](sender: S, recipient: R, message: M) extends Serializable
 
 /**
@@ -9,8 +11,8 @@ sealed abstract class Message[S, R, M <: Serializable](sender: S, recipient: R, 
   * @param recipient Peer object representing recipient of the message
   * @param message   message body
   */
-case class NetworkMessage(sender: Peer,
-                          recipient: Peer,
-                          message: Serializable)
+case class NetworkMessage(@BeanProperty sender: Peer,
+                          @BeanProperty recipient: Peer,
+                          @BeanProperty message: Serializable)
   extends Message(sender = sender, recipient = recipient, message = message)
 

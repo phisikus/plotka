@@ -1,7 +1,9 @@
 package eu.phisikus.plotka.conf
 
-trait PeerConfiguration {
-  def address: String
+import scala.beans.BeanProperty
 
-  def port: Int
+trait PeerConfiguration {
+  @BeanProperty def address: String
+
+  @BeanProperty def port: Int
 }
