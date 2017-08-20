@@ -22,8 +22,8 @@ public class SimpleExample {
         StandardNetworkMessageConsumer messageConsumer = new StandardNetworkMessageConsumer(localPeer,
                 (message, talker) -> {
                     TextMessage textMessage = (TextMessage) message.getMessage();
-                    String receviedText = textMessage.getText();
-                    logger.info("All good! I've got the message: {}", receviedText);
+                    String receivedText = textMessage.getText();
+                    logger.info("All good! I've got the message: {}", receivedText);
                     return BoxedUnit.UNIT;
                 });
 
