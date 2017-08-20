@@ -1,3 +1,5 @@
+package eu.phisikus.plotka.examples;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import scala.Serializable;
 

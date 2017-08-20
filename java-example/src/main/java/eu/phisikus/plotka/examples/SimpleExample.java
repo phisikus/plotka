@@ -1,3 +1,5 @@
+package eu.phisikus.plotka.examples;
+
 import eu.phisikus.plotka.model.NetworkPeer;
 import eu.phisikus.plotka.network.consumer.StandardNetworkMessageConsumer;
 import eu.phisikus.plotka.network.listener.NetworkListener;
