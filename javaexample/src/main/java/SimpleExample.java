@@ -17,12 +17,13 @@ public class SimpleExample {
         NetworkPeer localPeer = new NetworkPeer("LocalPeer1", "127.0.0.1", 3030);
         Talker testTalker = new NetworkTalker(localPeer);
 
-        StandardNetworkMessageConsumer messageConsumer = new StandardNetworkMessageConsumer(localPeer, (message, talker) -> {
-            TextMessage textMessage = (TextMessage) message.getMessage();
-            String receviedText = textMessage.getText();
-            logger.info("All good! I've got the message: {}", receviedText);
-            return BoxedUnit.UNIT;
-        });
+        StandardNetworkMessageConsumer messageConsumer = new StandardNetworkMessageConsumer(localPeer,
+                (message, talker) -> {
+                    TextMessage textMessage = (TextMessage) message.getMessage();
+                    String receviedText = textMessage.getText();
+                    logger.info("All good! I've got the message: {}", receviedText);
+                    return BoxedUnit.UNIT;
+                });
 
         NetworkListener testListener = NetworkListenerBuilder.apply()
                 .withId(localPeer.getId())
