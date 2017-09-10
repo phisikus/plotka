@@ -4,7 +4,7 @@ Simple message-passing library written in Scala. It uses non-blocking TCP/IP cha
 
 The library distinguishes _Talker_ and _Listener_ as separate instances that can respectively send messages to a _Peer_ and handle incomming ones by invoking provided message consumer.
 
-It is a work in progress - check out the _examples/java-example_ project for reference.
+It is a work in progress - check out the _examples_ directory for usage inspiration. There are examples in Java and Scala with proposed way of configuration and docker deployment.
  
 ```xml
 <repositories>
