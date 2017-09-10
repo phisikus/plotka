@@ -7,19 +7,38 @@ import eu.phisikus.plotka.conf.{NodeConfiguration, NodeConfigurationProvider, Pe
 
 import scala.collection.JavaConverters._
 
-class FileConfigurationProvider(val fileName: String = "application") extends NodeConfigurationProvider {
+/**
+  * This implementation provides configuration loaded from file using Typesafe Config library.
+  *
+  * @param fileName optional name of the configuration file (resource)
+  */
+class FileConfigurationProvider(val fileName: Option[String]) extends NodeConfigurationProvider {
 
   private val logger = Logger(classOf[FileConfigurationProvider])
 
+  def this() {
+    this(None)
+  }
+
   override def loadConfiguration: NodeConfiguration = {
-    logger.info(s"Loading configuration : $fileName")
-    val loadedConfiguration = ConfigFactory.load(fileName)
+    val loadedConfiguration = loadConfigurationFile
     val node = loadedConfiguration.getConfig("node")
     val nodeId = node.getString("id")
     val nodePort = node.getInt("port")
     val nodeAddress = node.getString("address")
     val peers = node.getConfigList("peers").asScala.toList
     BasicNodeConfiguration(nodeId, nodePort, nodeAddress, buildPeerConfigurations(peers))
+  }
+
+  private def loadConfigurationFile = {
+    fileName match {
+      case None =>
+        logger.info(s"Loading default configuration.")
+        ConfigFactory.load()
+      case Some(name) =>
+        logger.info(s"Loading configuration : $name")
+        ConfigFactory.load(name)
+    }
   }
 
   private def buildPeerConfigurations(peers: List[_ <: Config]): List[PeerConfiguration] = {
