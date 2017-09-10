@@ -33,7 +33,7 @@ class FileConfigurationProvider(val fileName: Option[String]) extends NodeConfig
   private def loadConfigurationFile = {
     fileName match {
       case None =>
-        logger.info(s"Loading default configuration.")
+        logger.info("Loading default configuration.")
         ConfigFactory.load()
       case Some(name) =>
         logger.info(s"Loading configuration : $name")
