@@ -42,10 +42,9 @@ class FileConfigurationProvider(val fileName: Option[String]) extends NodeConfig
   }
 
   private def buildPeerConfigurations(peers: List[_ <: Config]): List[PeerConfiguration] = {
-    peers match {
-      case head :: tail => buildPeerConfiguration(head) :: buildPeerConfigurations(tail)
-      case Nil => List()
-    }
+    val initialList = List[PeerConfiguration]()
+    val foldingOperator = (config: Config, list: List[PeerConfiguration]) => buildPeerConfiguration(config) :: list
+    peers.foldRight(initialList)(foldingOperator)
   }
 
   private def buildPeerConfiguration(peerConfig: Config): PeerConfiguration = {
