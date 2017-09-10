@@ -1,19 +1,22 @@
 package eu.phisikus.plotka.examples.scala
 
 import com.typesafe.scalalogging.Logger
-import eu.phisikus.plotka.model.{NetworkMessage, NetworkPeer}
+import eu.phisikus.plotka.conf.providers.FileConfigurationProvider
+import eu.phisikus.plotka.model.NetworkPeer
 import eu.phisikus.plotka.network.consumer.StandardNetworkMessageConsumer
 import eu.phisikus.plotka.network.listener.NetworkListenerBuilder
-import eu.phisikus.plotka.network.talker.{NetworkTalker, Talker}
+import eu.phisikus.plotka.network.talker.NetworkTalker
 
 object EntryPoint {
   private val logger = Logger("EntryPoint")
+  private val configurationProvider: FileConfigurationProvider = new FileConfigurationProvider("app.conf")
 
   def main(args: Array[String]): Unit = {
-    val localPeer = NetworkPeer("LocalPeer1", "127.0.0.1", 3030)
-    val testTalker = new NetworkTalker(localPeer)
+    val configuration = configurationProvider.loadConfiguration
+    val peerConfiguration = configuration.peers.head
+    val localPeer: NetworkPeer = NetworkPeer(configuration.id, configuration.address, configuration.port)
 
-    val messageConsumer = new StandardNetworkMessageConsumer(localPeer, (message: NetworkMessage, talker: Talker) => {
+    val messageConsumer = new StandardNetworkMessageConsumer(localPeer, (message, talker) => {
       val textMessage = message.getMessage.asInstanceOf[TextMessage]
       val receivedText = textMessage.text
       logger.info("All good! I've got the message: {}", receivedText)
@@ -28,6 +31,8 @@ object EntryPoint {
 
 
     testListener.start()
+    val targetPeer = new NetworkPeer(peerConfiguration.address, peerConfiguration.port)
+    val testTalker = new NetworkTalker(localPeer)
     testTalker.send(localPeer, TextMessage("Hello!"))
     Thread.sleep(1000L)
     testListener.stop()

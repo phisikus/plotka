@@ -31,12 +31,14 @@ imageNames in docker := Seq(
 )
 
 dockerfile in docker := {
+  val basePath = "/app/"
   val artifact: File = assembly.value
-  val artifactTargetPath = s"/app/${artifact.name}"
+  val artifactTargetPath = s"$basePath${artifact.name}"
 
   new Dockerfile {
     from("java")
     add(artifact, artifactTargetPath)
+    volume(basePath + "conf")
     entryPoint("java", "-jar", artifactTargetPath)
   }
 }
