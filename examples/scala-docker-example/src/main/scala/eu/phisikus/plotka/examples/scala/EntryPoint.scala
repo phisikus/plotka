@@ -9,9 +9,9 @@ import eu.phisikus.plotka.network.talker.NetworkTalker
 
 object EntryPoint {
   private val logger = Logger("EntryPoint")
-  private val configurationProvider: FileConfigurationProvider = new FileConfigurationProvider("app.conf")
 
   def main(args: Array[String]): Unit = {
+    val configurationProvider: FileConfigurationProvider = new FileConfigurationProvider()
     val configuration = configurationProvider.loadConfiguration
     val peerConfiguration = configuration.peers.head
     val localPeer: NetworkPeer = NetworkPeer(configuration.id, configuration.address, configuration.port)

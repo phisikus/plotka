@@ -32,13 +32,15 @@ imageNames in docker := Seq(
 
 dockerfile in docker := {
   val basePath = "/app/"
+  val configDir = basePath + "conf/"
   val artifact: File = assembly.value
   val artifactTargetPath = s"$basePath${artifact.name}"
+  val configFile = configDir + "app.conf"
 
   new Dockerfile {
     from("java")
     add(artifact, artifactTargetPath)
     volume(basePath + "conf")
-    entryPoint("java", "-jar", artifactTargetPath)
+    entryPoint("java", s"-Dconfig.file=$configFile", "-jar", artifactTargetPath)
   }
 }
