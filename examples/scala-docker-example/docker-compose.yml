@@ -3,4 +3,4 @@ services:
   plotka-example-1:
     image: eu.phisikus/scala-docker-example:latest
     volumes:
-      - ./src/main/conf:/app/conf
+      - ./src/main/resources:/app/conf

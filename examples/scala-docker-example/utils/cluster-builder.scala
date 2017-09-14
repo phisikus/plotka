@@ -55,9 +55,9 @@ def buildDockerComposeWithConfigs(): Unit = {
 def createConfigFile(baseConfigDir: String, i: Int): Unit = {
   val containerConfigDir = baseConfigDir + "/" + baseContainerName + "-" + i
   new File(containerConfigDir).mkdirs()
-  new PrintWriter(containerConfigDir + "/app.conf") {
+  new PrintWriter(containerConfigDir + "/application.conf") {
 
-    val currentContainerName = baseContainerName + "-" + i
+    private val currentContainerName = baseContainerName + "-" + i
     write("node {\n  " +
       "id = \"" + currentContainerName + "\"\n  " +
       "port = " + port + "\n  " +
