@@ -35,7 +35,7 @@ dockerfile in docker := {
   val configDir = basePath + "conf/"
   val artifact: File = assembly.value
   val artifactTargetPath = s"$basePath${artifact.name}"
-  val configFile = configDir + "application.conf"
+  val configFile = configDir + "node1/application.conf"
 
   new Dockerfile {
     from("java")
