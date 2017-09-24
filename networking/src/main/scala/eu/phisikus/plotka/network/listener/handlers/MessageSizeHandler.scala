@@ -34,10 +34,11 @@ class MessageSizeHandler(messageConsumer: NetworkMessageConsumer,
     }
   }
 
-  private def closeTransmission() = {
-    logger.debug(s"Peer declared end of transmission: ${channel.getRemoteAddress}")
-    try
+  private def closeTransmission(): Unit = {
+    try {
+      logger.debug(s"Peer declared end of transmission: ${channel.getRemoteAddress}")
       channel.close()
+    }
     catch {
       case e: IOException => logger.debug(s"Exception thrown during closeTransmission(): $e")
     }
