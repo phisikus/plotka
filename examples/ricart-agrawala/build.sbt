@@ -18,30 +18,3 @@ libraryDependencies ++= Seq(
   "eu.phisikus" % "plotka_2.12" % "0.0.1",
   "org.scalatest" % "scalatest_2.12" % "3.0.4" % "test"
 )
-
-enablePlugins(DockerPlugin)
-
-imageNames in docker := Seq(
-  ImageName(s"${organization.value}/${name.value}:latest"),
-
-  ImageName(
-    namespace = Some(organization.value),
-    repository = name.value,
-    tag = Some("v" + version.value)
-  )
-)
-
-dockerfile in docker := {
-  val basePath = "/app/"
-  val configDir = basePath + "conf/"
-  val artifact: File = assembly.value
-  val artifactTargetPath = s"$basePath${artifact.name}"
-  val configFile = configDir + "node1/application.conf"
-
-  new Dockerfile {
-    from("java")
-    add(artifact, artifactTargetPath)
-    volume(basePath + "conf")
-    entryPoint("java", s"-Dconfig.file=$configFile", "-jar", artifactTargetPath)
-  }
-}
