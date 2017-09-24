@@ -9,6 +9,7 @@
         </encoder>
     </appender>
 
+    <!-- File appender for logging all the messages -->
     <appender name="fileLogAppender" class="ch.qos.logback.core.FileAppender">
         <file>target/networking-test.log</file>
         <encoder>
