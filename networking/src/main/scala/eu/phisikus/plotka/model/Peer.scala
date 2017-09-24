@@ -10,6 +10,6 @@ case class NetworkPeer(@BeanProperty id: String,
                        @BeanProperty address: String,
                        @BeanProperty port: Int) extends Peer(id = id) {
   def this(address: String, port: Int) = {
-    this(UUID.randomUUID().toString, address, port)
+    this(UUID.nameUUIDFromBytes(s"$address:$port".getBytes).toString, address, port)
   }
 }
