@@ -12,11 +12,17 @@ import eu.phisikus.plotka.network.talker.{NetworkTalker, Talker}
 
 import scala.collection.mutable.ListBuffer
 
+/**
+  * This class implements Ricart-Agrawala mutual exclusion algorithm.
+  *
+  * @param nodeConfiguration           contains information about available nodes
+  * @param forCriticalSectionExecution function that will be executed in critical section
+  */
 class RicartAgrawalaNode(nodeConfiguration: NodeConfiguration, forCriticalSectionExecution: () => Unit) {
   private val logger = Logger("RicartAgrawala:" + nodeConfiguration.id)
-  private val currentClock: AtomicLong = new AtomicLong(0)
   private val myself = NetworkPeer(nodeConfiguration.id, nodeConfiguration.address, nodeConfiguration.port)
   private val talker = new NetworkTalker(myself)
+
   private val messageHandler: NetworkMessageConsumer = inputMessage => {
     val msg = inputMessage.asInstanceOf[NetworkMessage]
     val sender = msg.sender.asInstanceOf[NetworkPeer]
@@ -31,6 +37,7 @@ class RicartAgrawalaNode(nodeConfiguration: NodeConfiguration, forCriticalSectio
     }
   }
   private val nodeListener = new NetworkListener(nodeConfiguration, messageHandler)
+  private val currentClock: AtomicLong = new AtomicLong(0)
   private val waitingRequests = ListBuffer[Request]()
   private val agreements = ListBuffer[Accept]()
   private var currentRequest: Option[Request] = Option.empty
@@ -38,18 +45,23 @@ class RicartAgrawalaNode(nodeConfiguration: NodeConfiguration, forCriticalSectio
   def start(): Unit = {
     nodeListener.start()
     repeatWhileWithDelay {
-      requestCriticalSection()
-      true
+      currentRequest match {
+        case Some(x: Request) => false
+        case None => requestCriticalSection()
+      }
     }
   }
 
-  def requestCriticalSection(): Unit = {
+  def requestCriticalSection(): Boolean = {
     val requestClockValue = currentClock.incrementAndGet()
     val requestMessage = RequestMessage(requestClockValue)
     val myRequest = Request(myself, requestClockValue)
-    this.synchronized {
-      currentRequest = Some(myRequest)
-    }
+    currentRequest = Some(myRequest)
+    sendRequestToAll(requestMessage)
+    true
+  }
+
+  private def sendRequestToAll(requestMessage: RequestMessage): Unit = {
     nodeConfiguration.peers.foreach(peer => {
       val recipient = new NetworkPeer(peer.address, peer.port)
       logger.info("Sending: {} to {}", requestMessage, recipient)
@@ -78,7 +90,7 @@ class RicartAgrawalaNode(nodeConfiguration: NodeConfiguration, forCriticalSectio
     }
   }
 
-  private def sendAccept(request: Request, talker: Talker) = {
+  private def sendAccept(request: Request, talker: Talker): Unit = {
     val newClockValue = currentClock.incrementAndGet()
     repeatWhileWithDelay {
       val message = AcceptMessage(newClockValue)
