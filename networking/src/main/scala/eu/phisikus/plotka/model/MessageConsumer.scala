@@ -5,7 +5,7 @@ sealed trait MessageConsumer[S, R, M <: Serializable] {
 }
 
 /**
-  * MessageConsumer is used by NetworkListener as an incoming message handler.
+  * NetworkMessageConsumer is used by NetworkListener as an incoming message handler.
   */
 trait NetworkMessageConsumer extends MessageConsumer[NetworkPeer, Peer, Serializable]
 
