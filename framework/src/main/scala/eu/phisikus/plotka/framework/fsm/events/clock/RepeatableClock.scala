@@ -1,38 +1,23 @@
 package eu.phisikus.plotka.framework.fsm.events.clock
 
-import java.util.concurrent.Executors
-import java.util.concurrent.atomic.AtomicBoolean
-
 import eu.phisikus.plotka.framework.fsm.StateMachine
 
 import scala.annotation.tailrec
 import scala.concurrent.duration.Duration
+import scala.util.Try
 
 /**
-  * This clock waits for a given amount of time and pushes [[ClockEvent]] to the state machine.
-  * It starts counting when [[Clock.start()]] is executed and repeats it until [[Clock.stop()]] is called.
+  * This clock pushes [[ClockEvent]] to provided state machine every time defined moment passes.
+  * The clock works once [[Clock.start()]] is called and stops if [[Clock.stop()]] is executed.
   *
   * @param stateMachine state machine that will receive the events
-  * @param duration     amount of time between events
+  * @param duration     amount of time between events emission
   */
-class RepeatableClock(stateMachine: StateMachine, duration: Duration) extends Clock {
-  private val threadPool = Executors.newSingleThreadExecutor()
-  private val isEnabled = new AtomicBoolean(true)
+class RepeatableClock(stateMachine: StateMachine, duration: Duration)
+  extends AbstractClock(stateMachine, duration) {
 
-  /**
-    * Start counting time and emitting ClockEvents
-    */
-  override def start(): Unit = {
-    threadPool.execute(() => {
-      clockLoop(stateMachine, duration)
-    })
-  }
-
-  /**
-    * Stop the clock.
-    */
-  override def stop(): Unit = {
-    isEnabled.set(false)
+  override def clockLogic(machine: StateMachine, duration: Duration): Unit = {
+    clockLoop(stateMachine, duration)
   }
 
   @tailrec
@@ -44,10 +29,17 @@ class RepeatableClock(stateMachine: StateMachine, duration: Duration) extends Cl
   }
 
   private def waitAndEmitEvent(stateMachine: StateMachine, duration: Duration): Unit = {
-    Thread.sleep(duration.toMillis)
-    val clockEvent = ClockEvent(this)
-    stateMachine.push(clockEvent)
+    sleep(duration)
+    if (isEnabled.get()) {
+      stateMachine.push(ClockEvent(this))
+    }
   }
 
-
+  private def sleep(duration: Duration) = {
+    try {
+      Thread.sleep(duration.toMillis)
+    } catch {
+      case _: InterruptedException =>
+    }
+  }
 }
