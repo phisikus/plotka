@@ -26,12 +26,12 @@ class RepeatableClockTest extends FunSuite with MockitoSugar with Eventually {
     val limitTimeInMillis = count * timeDuration.toMillis * 1.2
     val waitSpan = Span(limitTimeInMillis, Milliseconds)
     val stateMachine = mock[StateMachine]
-    val singleAlarmClock = new RepeatableClock(stateMachine, timeDuration)
+    val repeatableClock = new RepeatableClock(stateMachine, timeDuration)
 
-    singleAlarmClock.start()
+    repeatableClock.start()
     eventually(timeout(waitSpan)) {
-      verify(stateMachine, atLeast(count)).push(ClockEvent(singleAlarmClock))
+      verify(stateMachine, atLeast(count)).push(ClockEvent(repeatableClock))
     }
-    singleAlarmClock.stop()
+    repeatableClock.stop()
   }
 }
