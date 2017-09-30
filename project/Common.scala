@@ -2,21 +2,16 @@ import java.util.Properties
 
 import sbt.Keys._
 import sbt.{Def, _}
-import scoverage.ScoverageKeys.{coverageEnabled, coverageFailOnMinimum, coverageMinimum}
+import scoverage.ScoverageKeys.{coverageFailOnMinimum, coverageMinimum}
 
 object Common {
+
   val settings = Seq(
     version := getProjectVersion,
     organization := "eu.phisikus",
     scalaVersion := "2.12.2",
     publishMavenStyle := true
   )
-
-  private def getProjectVersion = {
-    val buildProperties = new Properties()
-    IO.load(buildProperties, new File("project/build.properties"))
-    buildProperties.getProperty("project.version")
-  }
 
   val testCoverageSettings = Seq(
     coverageMinimum := 70,
@@ -29,6 +24,18 @@ object Common {
     Dependencies.logging,
     Dependencies.testing
   ).flatten
+
+  val publishingSettings = Seq(
+    publishTo := Some(Resolver.sftp("Phisikus Maven Repo", "phisikus.eu", "domains/phisikus.eu/public_html/maven2")),
+    publishArtifact in Test := false,
+    isSnapshot := true
+  )
+
+  private def getProjectVersion = {
+    val buildProperties = new Properties()
+    IO.load(buildProperties, new File("project/build.properties"))
+    buildProperties.getProperty("project.version")
+  }
 
   object Dependencies {
     val commons = Seq(
@@ -45,15 +52,10 @@ object Common {
     )
 
     val testing = Seq(
-      "org.scalatest" % "scalatest_2.12" % "3.0.1" % Test
+      "org.scalatest" % "scalatest_2.12" % "3.0.1" % Test,
+      "org.mockito" % "mockito-all" % "1.10.19" % Test
     )
   }
-
-  val publishingSettings = Seq(
-    publishTo := Some(Resolver.sftp("Phisikus Maven Repo","phisikus.eu","domains/phisikus.eu/public_html/maven2")),
-    publishArtifact in Test := false,
-    isSnapshot := true
-  )
 
 
 }

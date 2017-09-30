@@ -9,13 +9,13 @@ import scala.annotation.tailrec
 import scala.concurrent.duration.Duration
 
 /**
-  * This clock waits for a given amount of time and pushes ClockEvent to state machine.
+  * This clock waits for a given amount of time and pushes [[ClockEvent]] to the state machine.
+  * It starts counting when [[Clock.start()]] is executed and repeats it until [[Clock.stop()]] is called.
   *
-  * @param stateMachine machine that will receive the event
-  * @param duration     amount of time between [[Clock.start()]] execution and ClockEvent creation.
+  * @param stateMachine state machine that will receive the events
+  * @param duration     amount of time between events
   */
-class SingleAlarmClock(stateMachine: StateMachine, duration: Duration) extends Clock {
-
+class RepeatableClock(stateMachine: StateMachine, duration: Duration) extends Clock {
   private val threadPool = Executors.newSingleThreadExecutor()
   private val isEnabled = new AtomicBoolean(true)
 
@@ -45,7 +45,8 @@ class SingleAlarmClock(stateMachine: StateMachine, duration: Duration) extends C
 
   private def waitAndEmitEvent(stateMachine: StateMachine, duration: Duration): Unit = {
     Thread.sleep(duration.toMillis)
-    stateMachine.push(ClockEvent(this))
+    val clockEvent = ClockEvent(this)
+    stateMachine.push(clockEvent)
   }
 
 
