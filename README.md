@@ -18,7 +18,7 @@ It is a work in progress - check out the _examples_ directory for usage inspirat
          <dependency>
              <groupId>eu.phisikus</groupId>
              <artifactId>plotka_2.12</artifactId>
-             <version>0.0.1</version>
+             <version>0.0.3</version>
          </dependency>
 </dependencies>
 ```
