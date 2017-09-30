@@ -9,19 +9,19 @@ trait StateMachine {
     *
     * @param initialState initial state
     */
-  def start(initialState : State) : Unit
+  def start(initialState: State): Unit
 
 
   /**
     * Stop the state machine.
     */
-  def stop() : Unit
+  def stop(): Unit
 
 
   /**
     * Wait for the state machine to stop when it reaches any final state.
     */
-  def awaitTermination() : Unit
+  def awaitTermination(): Unit
 
 
   /**
@@ -29,5 +29,5 @@ trait StateMachine {
     *
     * @param event event to be published
     */
-  def push(event : Event) : Unit
+  def push(event: Event): Unit
 }

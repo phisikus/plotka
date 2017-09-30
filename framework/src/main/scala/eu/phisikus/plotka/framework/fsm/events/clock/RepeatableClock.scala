@@ -4,7 +4,6 @@ import eu.phisikus.plotka.framework.fsm.StateMachine
 
 import scala.annotation.tailrec
 import scala.concurrent.duration.Duration
-import scala.util.Try
 
 /**
   * This clock pushes [[ClockEvent]] to provided state machine every time defined moment passes.
@@ -35,7 +34,7 @@ class RepeatableClock(stateMachine: StateMachine, duration: Duration)
     }
   }
 
-  private def sleep(duration: Duration) = {
+  private def sleep(duration: Duration): Unit = {
     try {
       Thread.sleep(duration.toMillis)
     } catch {

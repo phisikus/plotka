@@ -4,8 +4,8 @@ package eu.phisikus.plotka.framework.fsm.events.clock
 import java.util.concurrent.TimeUnit
 
 import eu.phisikus.plotka.framework.fsm.StateMachine
-import org.mockito.Mockito.{atLeast, verify}
-import org.mockito.internal.verification.{Only, Times}
+import org.mockito.Mockito.verify
+import org.mockito.internal.verification.Times
 import org.scalatest.FunSuite
 import org.scalatest.concurrent.Eventually
 import org.scalatest.mockito.MockitoSugar
