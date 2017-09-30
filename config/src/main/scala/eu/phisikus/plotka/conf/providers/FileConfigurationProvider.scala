@@ -6,6 +6,7 @@ import eu.phisikus.plotka.conf.model.{BasicNodeConfiguration, BasicPeerConfigura
 import eu.phisikus.plotka.conf.{NodeConfiguration, NodeConfigurationProvider, PeerConfiguration}
 
 import scala.collection.JavaConverters._
+import scala.util.{Failure, Success, Try}
 
 /**
   * This implementation provides configuration loaded from file using Typesafe Config library.
@@ -27,7 +28,17 @@ class FileConfigurationProvider(val fileName: Option[String]) extends NodeConfig
     val nodePort = node.getInt("port")
     val nodeAddress = node.getString("address")
     val peers = node.getConfigList("peers").asScala.toList
-    BasicNodeConfiguration(nodeId, nodePort, nodeAddress, buildPeerConfigurations(peers))
+    val settings = getCustomSettings(node)
+    BasicNodeConfiguration(nodeId, nodePort, nodeAddress, buildPeerConfigurations(peers), settings)
+  }
+
+  private def getCustomSettings(node: Config): Option[Config] = {
+    Try {
+      node.getConfig("settings")
+    } match {
+      case Success(settings) => Some(settings)
+      case Failure(exception) => None
+    }
   }
 
   private def loadConfigurationFile = {

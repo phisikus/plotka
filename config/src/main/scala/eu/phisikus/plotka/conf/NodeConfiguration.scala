@@ -1,5 +1,7 @@
 package eu.phisikus.plotka.conf
 
+import com.typesafe.config.Config
+
 import scala.beans.BeanProperty
 
 
@@ -14,4 +16,6 @@ trait NodeConfiguration {
   @BeanProperty def address: String
 
   @BeanProperty def peers: List[PeerConfiguration]
+
+  @BeanProperty def settings: Option[Config]
 }

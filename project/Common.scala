@@ -1,14 +1,22 @@
+import java.util.Properties
+
 import sbt.Keys._
 import sbt.{Def, _}
 import scoverage.ScoverageKeys.{coverageEnabled, coverageFailOnMinimum, coverageMinimum}
 
 object Common {
   val settings = Seq(
-    version := "0.0.1",
+    version := getProjectVersion,
     organization := "eu.phisikus",
     scalaVersion := "2.12.2",
     publishMavenStyle := true
   )
+
+  private def getProjectVersion = {
+    val buildProperties = new Properties()
+    IO.load(buildProperties, new File("project/build.properties"))
+    buildProperties.getProperty("project.version")
+  }
 
   val testCoverageSettings = Seq(
     coverageMinimum := 70,
