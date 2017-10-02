@@ -6,5 +6,5 @@ The library distinguishes _Talker_ and _Listener_ as separate instances that can
 
 In general the library is a work in progress - check out the _examples_ directory for usage inspiration:
 - _java-example_ - Simple usage example in Java that sends and receives a single message.
-- _scala-docker_example_ - More complex example in Scala where each node sends messages to all known nodes and finishes when the responses are received.
+- _scala-docker-example_ - More complex example in Scala where each node sends messages to all known nodes and finishes when the responses are received.
 - _ricart-agrawala_ - Example mutual exclusion algorithm implementation in Scala (experimental)
