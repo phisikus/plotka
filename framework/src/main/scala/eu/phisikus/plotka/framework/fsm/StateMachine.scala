@@ -1,5 +1,7 @@
 package eu.phisikus.plotka.framework.fsm
 
+import scala.beans.BeanProperty
+
 /**
   * It represents a finite-state machine (Mealy machine)
   */
@@ -16,5 +18,5 @@ trait StateMachine {
   /**
     * @return current state of the machine
     */
-  def currentState: State
+  @BeanProperty def currentState: State
 }

@@ -5,7 +5,7 @@ import eu.phisikus.plotka.network.talker.Talker
 
 /**
   * This event represents incoming network message.
-  * Additionaly an instance of Talker is provided for eventual replies.
+  * Additionally an instance of Talker is provided for eventual replies.
   *
   * @param incomingMessage message that was received
   * @param talker          instance of talker that can be used to send a reply

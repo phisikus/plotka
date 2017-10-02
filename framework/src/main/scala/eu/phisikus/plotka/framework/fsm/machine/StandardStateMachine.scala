@@ -4,12 +4,14 @@ import java.util.concurrent.atomic.AtomicReference
 
 import eu.phisikus.plotka.framework.fsm.{Event, State, StateMachine}
 
+import scala.beans.BeanProperty
+
 /**
   * Basic implementation of the finite-state machine.
   *
   * @param initialState initial state that the machine is in.
   */
-class StandardStateMachine(initialState: State) extends StateMachine {
+class StandardStateMachine(@BeanProperty initialState: State) extends StateMachine {
 
   val state = new AtomicReference(initialState)
 
