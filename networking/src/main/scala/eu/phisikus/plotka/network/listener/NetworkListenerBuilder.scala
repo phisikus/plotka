@@ -7,7 +7,7 @@ import eu.phisikus.plotka.conf.PeerConfiguration
 import eu.phisikus.plotka.conf.model.{BasicNodeConfiguration, BasicPeerConfiguration}
 import eu.phisikus.plotka.model.NetworkMessageConsumer
 
-class NetworkListenerBuilder {
+class NetworkListenerBuilder extends NetworkListenerConstructor {
   private var id: String = UUID.randomUUID().toString
   private var port: Int = 3030
   private var address: String = getLocalAddress

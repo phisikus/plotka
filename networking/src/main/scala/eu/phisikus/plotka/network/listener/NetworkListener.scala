@@ -17,7 +17,7 @@ import eu.phisikus.plotka.network.listener.handlers.AcceptHandler
   * @param messageConsumer   handler that will be called for each received message
   */
 class NetworkListener(val nodeConfiguration: NodeConfiguration,
-                      val messageConsumer: NetworkMessageConsumer) {
+                      val messageConsumer: NetworkMessageConsumer) extends ListenerController {
   private val logger = Logger(classOf[NetworkListener])
   private val serverThreadGroup = AsynchronousChannelGroup.withFixedThreadPool(10, Executors.defaultThreadFactory())
   private val serverSocketAddress = new InetSocketAddress(nodeConfiguration.address, nodeConfiguration.port)
