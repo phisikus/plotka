@@ -6,10 +6,6 @@ version := "0.0.1"
 
 scalaVersion := "2.12.2"
 
-publishMavenStyle := true
-
-mainClass in Compile := Some("eu.phisikus.plotka.examples.ricart.agrawala.EntryPoint")
-
 resolvers ++= Seq(
   "Phisikus' Maven Repository" at "http://phisikus.eu/maven2"
 )
