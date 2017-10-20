@@ -1,12 +1,12 @@
 package eu.phisikus.plotka.examples.ricart.agrawala
 
-import java.util.concurrent.{CountDownLatch, ExecutorService, Executors, ForkJoinPool}
+import java.util.concurrent.{CountDownLatch, Executors}
 
 import com.typesafe.scalalogging.Logger
 import eu.phisikus.plotka.conf.providers.FileConfigurationProvider
-import org.scalatest.{FunSuite, Matchers}
 import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{Millis, Seconds, Span}
+import org.scalatest.{FunSuite, Matchers}
 
 class RicartAgrawalaNodeTest extends FunSuite with Eventually with Matchers {
 
