@@ -1,6 +1,6 @@
 package eu.phisikus.plotka.examples.ricart.agrawala
 
-import java.util.concurrent.{CountDownLatch, ForkJoinPool}
+import java.util.concurrent.{CountDownLatch, ExecutorService, Executors, ForkJoinPool}
 
 import com.typesafe.scalalogging.Logger
 import eu.phisikus.plotka.conf.providers.FileConfigurationProvider
@@ -18,7 +18,7 @@ class RicartAgrawalaNodeTest extends FunSuite with Eventually with Matchers {
 
   test("Two nodes should execute their critical sections") {
 
-    val executor = ForkJoinPool.commonPool()
+    val executor = Executors.newFixedThreadPool(2)
     val barrier = new CountDownLatch(2)
 
     val testNode1 = new RicartAgrawalaNode(node1Conf, () => {
