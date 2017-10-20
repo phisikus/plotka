@@ -21,7 +21,9 @@ class StandardStateMachine(@BeanProperty initialState: State) extends StateMachi
     * @param event event to be published
     */
   override def push(event: Event): Unit = {
-    state.set(transition(state.get(), event))
+    state.synchronized {
+      state.set(transition(state.get(), event))
+    }
   }
 
   private def transition(oldState: State, event: Event): State = {

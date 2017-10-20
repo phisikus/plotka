@@ -10,5 +10,6 @@ import eu.phisikus.plotka.network.talker.Talker
   * @param incomingMessage message that was received
   * @param talker          instance of talker that can be used to send a reply
   */
-class MessageEventWithTalker(override val incomingMessage: NetworkMessage, talker: Talker) extends MessageEvent(incomingMessage)
+class MessageEventWithTalker(override val incomingMessage: NetworkMessage,
+                             val talker: Talker) extends MessageEvent(incomingMessage)
 

@@ -55,7 +55,7 @@
         <dependency>
             <groupId>eu.phisikus</groupId>
             <artifactId>plotka_2.12</artifactId>
-            <version>0.0.4</version>
+            <version>0.0.5</version>
         </dependency>
     </dependencies>
 

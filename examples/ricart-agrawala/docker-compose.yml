@@ -1,6 +1,0 @@
-version: '2'
-services:
-  plotka-example-1:
-    image: eu.phisikus/scala-docker-example:latest
-    volumes:
-      - ./src/main/resources:/app/conf
