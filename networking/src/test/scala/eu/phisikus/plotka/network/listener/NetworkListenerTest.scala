@@ -1,10 +1,11 @@
 package eu.phisikus.plotka.network.listener
 
-import java.io.{ByteArrayOutputStream, ObjectOutputStream, OutputStream}
+import java.io.OutputStream
 import java.net.Socket
 import java.nio.ByteBuffer
 import java.util.UUID
 
+import com.twitter.chill.KryoInjection
 import eu.phisikus.plotka.conf.model.BasicNodeConfiguration
 import eu.phisikus.plotka.model.{Message, NetworkMessage, NetworkPeer, Peer}
 import eu.phisikus.plotka.network.listener.dto.TestMessage
@@ -20,6 +21,7 @@ class NetworkListenerTest extends FunSuite with Eventually with Matchers {
 
   private val TestMessageCount = 1000
   private val testTimeout = timeout(Span(60, Seconds))
+  private val shortTestTimeout = timeout(Span(6, Seconds))
   private val testCheckInterval = interval(Span(300, Millis))
 
   test("Should start listener and receive message") {
@@ -31,7 +33,7 @@ class NetworkListenerTest extends FunSuite with Eventually with Matchers {
     testListener.start()
     sendMessageToListener(testNodeConfiguration)
 
-    eventually {
+    eventually(shortTestTimeout) {
       testMessageConsumer.receivedMessages.head should equal(expectedMessage)
     }
     testListener.stop()
@@ -91,12 +93,12 @@ class NetworkListenerTest extends FunSuite with Eventually with Matchers {
     intBuffer.array()
   }
 
-  private def sendMessageToListener(testNodeConfiguration: BasicNodeConfiguration) = {
+  private def sendMessageToListener(testNodeConfiguration: BasicNodeConfiguration): Unit = {
     val testMessage: NetworkMessage = getTestMessage(testNodeConfiguration)
     sendMessagesToListener(testNodeConfiguration, List(testMessage))
   }
 
-  private def sendMessagesToListener(testNodeConfiguration: BasicNodeConfiguration, testMessages: List[NetworkMessage]) = {
+  private def sendMessagesToListener(testNodeConfiguration: BasicNodeConfiguration, testMessages: List[NetworkMessage]): Unit = {
     val testClientSocket = new Socket(testNodeConfiguration.address, testNodeConfiguration.port)
     val clientOutputStream = testClientSocket.getOutputStream
     writeMessages(clientOutputStream, testMessages)
@@ -119,13 +121,7 @@ class NetworkListenerTest extends FunSuite with Eventually with Matchers {
   }
 
   private def getMessageAsBytes(testMessage: NetworkMessage): Array[Byte] = {
-    val byteOutputStream = new ByteArrayOutputStream()
-    val objectStream = new ObjectOutputStream(byteOutputStream)
-    objectStream.writeObject(testMessage)
-    objectStream.flush()
-    objectStream.close()
-    byteOutputStream.close()
-    byteOutputStream.toByteArray
+    KryoInjection(testMessage)
   }
 
   private def getTestMessage(testNodeConfiguration: BasicNodeConfiguration) = {
