@@ -46,6 +46,10 @@ object Common {
       "com.typesafe" % "config" % "1.3.1"
     )
 
+    val serialization = Seq(
+      "com.twitter" % "chill-bijection_2.12" % "0.9.2"
+    )
+
     val logging = Seq(
       "ch.qos.logback" % "logback-classic" % "1.1.7",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0"

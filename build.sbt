@@ -12,6 +12,7 @@ lazy val networking = project.in(file("networking"))
   .settings(Common.testCoverageSettings)
   .settings(Common.publishingSettings)
   .settings(Common.dependencies)
+  .settings(libraryDependencies ++= Common.Dependencies.serialization)
   .dependsOn(config)
 
 lazy val framework = project.in(file("framework"))
