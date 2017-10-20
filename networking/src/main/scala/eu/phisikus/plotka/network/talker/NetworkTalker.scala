@@ -1,11 +1,11 @@
 package eu.phisikus.plotka.network.talker
 
-import java.io.{ByteArrayOutputStream, ObjectOutputStream}
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels._
 import java.util.concurrent.Executors
 
+import com.twitter.chill.KryoInjection
 import com.typesafe.scalalogging.Logger
 import eu.phisikus.plotka.model.{NetworkMessage, NetworkPeer, Peer}
 
@@ -114,13 +114,7 @@ class NetworkTalker(localPeer: Peer) extends Talker {
   }
 
   private def getMessageAsBytes(testMessage: NetworkMessage): Array[Byte] = {
-    val byteOutputStream = new ByteArrayOutputStream()
-    val objectStream = new ObjectOutputStream(byteOutputStream)
-    objectStream.writeObject(testMessage)
-    objectStream.flush()
-    objectStream.close()
-    byteOutputStream.close()
-    byteOutputStream.toByteArray
+    KryoInjection(testMessage)
   }
 
 }

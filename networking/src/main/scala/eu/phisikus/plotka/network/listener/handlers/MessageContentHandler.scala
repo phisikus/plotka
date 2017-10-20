@@ -1,12 +1,13 @@
 package eu.phisikus.plotka.network.listener.handlers
 
-import java.io.{ByteArrayInputStream, IOException, ObjectInputStream}
 import java.nio.ByteBuffer
 import java.nio.channels.{AsynchronousSocketChannel, CompletionHandler}
 
+import com.twitter.chill.KryoInjection
 import com.typesafe.scalalogging.Logger
-import eu.phisikus.plotka.model.{Message, NetworkMessageConsumer}
-import eu.phisikus.plotka.model._
+import eu.phisikus.plotka.model.{Message, NetworkMessageConsumer, _}
+
+import scala.util.{Failure, Success}
 
 /**
   * This handler is called after read operation and performs deserialization of incoming message.
@@ -31,7 +32,7 @@ class MessageContentHandler(messageConsumer: NetworkMessageConsumer,
     }
   }
 
-  private def processBufferData(state: Unit) = {
+  private def processBufferData(state: Unit): Unit = {
     readMessage(messageBuffer) match {
       case Some(message) => messageConsumer.consumeMessage(message)
       case None => logger.debug("Could not read message.")
@@ -41,33 +42,21 @@ class MessageContentHandler(messageConsumer: NetworkMessageConsumer,
   }
 
   private def readMessage(messageBuffer: ByteBuffer): Option[Message[NetworkPeer, Peer, Serializable]] = {
-    try
-      Some(readMessageFromBuffer())
-    catch {
-      case ioe: IOException =>
-        logger.debug(s"Exception was thrown while reading message: $ioe")
-        None
-      case cnf: ClassNotFoundException =>
-        logger.debug(s"Deserialization failed, class could not be found: $cnf")
+    messageBuffer.rewind()
+    val deserialization = KryoInjection.invert(messageBuffer.array())
+    deserialization match {
+      case Success(message) =>
+        logger.debug(s"Received message from: ${channel.getRemoteAddress}, content: $message")
+        Some(message.asInstanceOf[Message[NetworkPeer, Peer, Serializable]])
+      case Failure(error) =>
+        logger.debug(s"Failed to deserialize message from : ${channel.getRemoteAddress}, reason: $error")
         None
     }
   }
 
-  private def readNextMessageSize(state: Unit) = {
+  private def readNextMessageSize(state: Unit): Unit = {
     val messageSizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
     channel.read(messageSizeBuffer, state, new MessageSizeHandler(messageConsumer, messageSizeBuffer, channel))
-  }
-
-  private def readMessageFromBuffer(): Message[NetworkPeer, Peer, Serializable] = {
-    messageBuffer.rewind()
-    val byteInputStream = new ByteArrayInputStream(messageBuffer.array())
-    val objectInputStream = new ObjectInputStream(byteInputStream)
-    val inputObject = objectInputStream.readObject()
-    val message = inputObject.asInstanceOf[Message[NetworkPeer, Peer, Serializable]]
-    byteInputStream.close()
-    objectInputStream.close()
-    logger.debug(s"Received message from: ${channel.getRemoteAddress}, content: $message")
-    message
   }
 
   override def failed(throwable: Throwable, state: Unit): Unit = {
