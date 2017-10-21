@@ -19,7 +19,7 @@ import scala.annotation.tailrec
 
 class NetworkListenerTest extends FunSuite with Eventually with Matchers {
 
-  private val TestMessageCount = 1000
+  private val testMessageCount = 1000
   private val testTimeout = timeout(Span(60, Seconds))
   private val shortTestTimeout = timeout(Span(6, Seconds))
   private val testCheckInterval = interval(Span(300, Millis))
@@ -42,7 +42,7 @@ class NetworkListenerTest extends FunSuite with Eventually with Matchers {
   test("Should start listener and receive multiple messages") {
     val testNodeConfiguration = BasicNodeConfiguration(peers = Nil, port = 3032)
     val testMessageConsumer = new ListMessageHandler
-    val testMessages: List[NetworkMessage] = getTestMessages(TestMessageCount)
+    val testMessages: List[NetworkMessage] = getTestMessages(testMessageCount)
     val testListener = new NetworkListener(testNodeConfiguration, testMessageConsumer)
 
     testListener.start()
@@ -57,7 +57,7 @@ class NetworkListenerTest extends FunSuite with Eventually with Matchers {
   test("Should start listener and receive multiple messages from multiple connections") {
     val testNodeConfiguration = BasicNodeConfiguration(peers = Nil, port = 3033)
     val testMessageConsumer = new ListMessageHandler
-    val testMessages: List[NetworkMessage] = getTestMessages(TestMessageCount)
+    val testMessages: List[NetworkMessage] = getTestMessages(testMessageCount)
     val testListener = new NetworkListener(testNodeConfiguration, testMessageConsumer)
 
     testListener.start()
