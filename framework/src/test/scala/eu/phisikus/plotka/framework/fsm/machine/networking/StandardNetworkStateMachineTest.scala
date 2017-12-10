@@ -17,7 +17,7 @@ class StandardNetworkStateMachineTest extends FunSuite with Matchers with Eventu
     * Test configuration
     */
   private val nodeConf = BasicNodeConfiguration(
-    peers = List(BasicPeerConfiguration("127.0.0.1"))
+    peers = List(BasicPeerConfiguration("127.0.0.2"))
   )
   private val localPeer = NetworkPeer(nodeConf.id, nodeConf.address, nodeConf.port)
   private val networkTalker = new NetworkTalker(localPeer)

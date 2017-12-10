@@ -33,4 +33,21 @@ class NetworkListenerBuilderTest extends FunSuite with Eventually with Matchers 
     testListener.stop()
   }
 
+  test("Should build test listener with multiple peers") {
+    val expectedPeers = List(
+      BasicPeerConfiguration("local1", 1024),
+      BasicPeerConfiguration("local2", 2048),
+      BasicPeerConfiguration("local3", 4096)
+    )
+
+    val testListener = NetworkListenerBuilder()
+      .withPeers(expectedPeers)
+      .build()
+
+    val actualPeers = testListener.nodeConfiguration.peers
+
+    actualPeers shouldBe actualPeers
+
+  }
+
 }

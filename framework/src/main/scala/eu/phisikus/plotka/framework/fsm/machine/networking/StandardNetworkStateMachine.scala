@@ -1,13 +1,12 @@
 package eu.phisikus.plotka.framework.fsm.machine.networking
 
-import eu.phisikus.plotka.conf.{NodeConfiguration, PeerConfiguration}
+import eu.phisikus.plotka.conf.NodeConfiguration
 import eu.phisikus.plotka.framework.fsm.machine.StandardStateMachine
 import eu.phisikus.plotka.framework.fsm.{Event, State, StateMachine}
 import eu.phisikus.plotka.model.NetworkPeer
 import eu.phisikus.plotka.network.listener.{ListenerController, NetworkListener, NetworkListenerBuilder}
 import eu.phisikus.plotka.network.talker.NetworkTalker
 
-import scala.annotation.tailrec
 import scala.beans.BeanProperty
 
 
@@ -19,7 +18,7 @@ import scala.beans.BeanProperty
   * After creation it should be started using [[ListenerController.start()]]
   *
   * @param initialState initial state of the StandardStateMachine
-  * @param nodeConfig configuration for the NetworkListener
+  * @param nodeConfig   configuration for the NetworkListener
   */
 class StandardNetworkStateMachine(initialState: State,
                                   nodeConfig: NodeConfiguration) extends ListenerController with StateMachine {
@@ -28,12 +27,11 @@ class StandardNetworkStateMachine(initialState: State,
   private val networkTalker: NetworkTalker = new NetworkTalker(localPeer)
   private val stateMachine: StateMachine = new StandardStateMachine(initialState)
 
-  private val listenerBuilder = NetworkListenerBuilder()
+  private val networkListener = NetworkListenerBuilder()
     .withAddress(nodeConfig.address)
     .withPort(nodeConfig.port)
+    .withPeers(nodeConfig.peers)
     .withId(nodeConfig.id)
-
-  private val networkListener: NetworkListener = withPeers(listenerBuilder, nodeConfig.peers)
     .withMessageHandler(new StateMachineNetworkMessageConsumer(stateMachine, networkTalker))
     .build()
 
@@ -66,14 +64,5 @@ class StandardNetworkStateMachine(initialState: State,
   @BeanProperty
   override def currentState: State = {
     stateMachine.currentState
-  }
-
-  @tailrec
-  private def withPeers(builder: NetworkListenerBuilder,
-                        peers: List[PeerConfiguration]): NetworkListenerBuilder = {
-    peers match {
-      case head :: tail => withPeers(builder.withPeer(head), tail)
-      case Nil => builder
-    }
   }
 }

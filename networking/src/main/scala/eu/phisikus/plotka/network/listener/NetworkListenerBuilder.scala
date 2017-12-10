@@ -7,6 +7,8 @@ import eu.phisikus.plotka.conf.PeerConfiguration
 import eu.phisikus.plotka.conf.model.{BasicNodeConfiguration, BasicPeerConfiguration}
 import eu.phisikus.plotka.model.NetworkMessageConsumer
 
+import scala.annotation.tailrec
+
 class NetworkListenerBuilder extends NetworkListenerConstructor {
   private var id: String = UUID.randomUUID().toString
   private var port: Int = 3030
@@ -43,6 +45,14 @@ class NetworkListenerBuilder extends NetworkListenerConstructor {
     this
   }
 
+  @tailrec
+  final def withPeers(peers: List[PeerConfiguration]): NetworkListenerBuilder = {
+    peers match {
+      case head :: tail => withPeer(head).withPeers(tail)
+      case Nil => this
+    }
+  }
+
   def build(): NetworkListener = {
     new NetworkListener(
       BasicNodeConfiguration(id, port, address, peers),
@@ -54,7 +64,7 @@ class NetworkListenerBuilder extends NetworkListenerConstructor {
     try {
       InetAddress.getLocalHost.getHostAddress
     } catch {
-      case e: UnknownHostException => "127.0.0.1"
+      case _: UnknownHostException => "127.0.0.1"
     }
   }
 
