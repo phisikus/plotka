@@ -55,6 +55,11 @@ object Common {
       "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0"
     )
 
+    val consul = Seq(
+      "io.verizon.helm" %% "http4s" % "3.0.82",
+      "com.pszymczyk.consul" % "embedded-consul" % "1.0.2" % Test
+    )
+
     val testing = Seq(
       "org.scalatest" % "scalatest_2.12" % "3.0.1" % Test,
       "org.mockito" % "mockito-all" % "1.10.19" % Test

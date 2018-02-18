@@ -5,6 +5,7 @@ lazy val config = project.in(file("config"))
   .settings(Common.testCoverageSettings)
   .settings(Common.publishingSettings)
   .settings(Common.dependencies)
+  .settings(libraryDependencies ++= Common.Dependencies.consul)
 
 lazy val networking = project.in(file("networking"))
   .settings(name := "plotka-networking")
