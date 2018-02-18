@@ -56,7 +56,8 @@ object Common {
     )
 
     val consul = Seq(
-      "io.verizon.helm" %% "http4s" % "3.0.82",
+      "com.google.code.gson" % "gson" % "2.8.2",
+      "com.orbitz.consul" % "consul-client" % "1.1.0",
       "com.pszymczyk.consul" % "embedded-consul" % "1.0.2" % Test
     )
 
