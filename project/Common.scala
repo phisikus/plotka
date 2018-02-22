@@ -56,7 +56,7 @@ object Common {
     )
 
     val consul = Seq(
-      "com.google.code.gson" % "gson" % "2.8.2",
+      "org.json4s" %% "json4s-native" % "3.5.3",
       "com.orbitz.consul" % "consul-client" % "1.1.0",
       "com.pszymczyk.consul" % "embedded-consul" % "1.0.2" % Test
     )
