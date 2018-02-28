@@ -1,23 +1,15 @@
 package eu.phisikus.plotka.conf.providers
 
 import com.typesafe.config.{Config, ConfigException}
-import eu.phisikus.plotka.conf.model.{BasicNodeConfiguration, BasicPeerConfiguration}
 import org.scalatest.{FunSuite, Matchers}
+import TestConfigurationExamples._
 
 class FileConfigurationProviderTest extends FunSuite with Matchers {
-  private val configurationFile = "test_configuration"
-  private val customConfigurationFile = "custom_settings"
-  private val expectedPeerConfiguration = List(
-    BasicPeerConfiguration("node1.network", 2048),
-    BasicPeerConfiguration("node2.network")
-  )
-  private val expectedConfiguration = BasicNodeConfiguration("node0.network", 2828, "10.0.0.1", expectedPeerConfiguration)
-
 
   test("Should load correct values from configuration file") {
-    val fileConfigurationProvider = new FileConfigurationProvider(Some(configurationFile))
+    val fileConfigurationProvider = new FileConfigurationProvider(Some(ConfigurationFile))
     val actualConfiguration = fileConfigurationProvider.loadConfiguration
-    actualConfiguration should equal(expectedConfiguration)
+    actualConfiguration should equal(ExpectedConfiguration)
   }
 
   test("Should fail when configuration file does not exist") {
@@ -28,7 +20,7 @@ class FileConfigurationProviderTest extends FunSuite with Matchers {
   }
 
   test("Should load configuration with custom settings") {
-    val fileConfigurationProvider = new FileConfigurationProvider(Some(customConfigurationFile))
+    val fileConfigurationProvider = new FileConfigurationProvider(Some(CustomConfigurationFile))
     val actualConfiguration = fileConfigurationProvider.loadConfiguration
     val settings = actualConfiguration.settings
     assertCustomSettings(settings)
