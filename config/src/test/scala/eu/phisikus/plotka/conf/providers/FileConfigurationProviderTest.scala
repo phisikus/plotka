@@ -1,8 +1,7 @@
-package eu.phisikus.plotka.conf
+package eu.phisikus.plotka.conf.providers
 
 import com.typesafe.config.{Config, ConfigException}
 import eu.phisikus.plotka.conf.model.{BasicNodeConfiguration, BasicPeerConfiguration}
-import eu.phisikus.plotka.conf.providers.FileConfigurationProvider
 import org.scalatest.{FunSuite, Matchers}
 
 class FileConfigurationProviderTest extends FunSuite with Matchers {
