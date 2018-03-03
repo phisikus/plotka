@@ -43,7 +43,7 @@ object Common {
     )
 
     val configuration = Seq(
-      "com.typesafe" % "config" % "1.3.1"
+      "com.typesafe" % "config" % "1.3.2"
     )
 
     val serialization = Seq(
