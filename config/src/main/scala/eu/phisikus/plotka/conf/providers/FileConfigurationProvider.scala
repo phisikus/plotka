@@ -2,11 +2,8 @@ package eu.phisikus.plotka.conf.providers
 
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.Logger
-import eu.phisikus.plotka.conf.model.{BasicNodeConfiguration, BasicPeerConfiguration}
-import eu.phisikus.plotka.conf.{NodeConfiguration, NodeConfigurationProvider, PeerConfiguration}
-
-import scala.collection.JavaConverters._
-import scala.util.{Failure, Success, Try}
+import eu.phisikus.plotka.conf.mappers.ConfigToNodeConfigurationMapper
+import eu.phisikus.plotka.conf.{NodeConfiguration, NodeConfigurationProvider}
 
 /**
   * This implementation provides configuration loaded from file using Typesafe Config library.
@@ -16,32 +13,17 @@ import scala.util.{Failure, Success, Try}
 class FileConfigurationProvider(val fileName: Option[String]) extends NodeConfigurationProvider {
 
   private val logger = Logger(classOf[FileConfigurationProvider])
+  private val mappingStrategy = new ConfigToNodeConfigurationMapper
 
   def this() {
     this(None)
   }
 
   override def loadConfiguration: NodeConfiguration = {
-    val loadedConfiguration = loadConfigurationFile
-    val node = loadedConfiguration.getConfig("node")
-    val nodeId = node.getString("id")
-    val nodePort = node.getInt("port")
-    val nodeAddress = node.getString("address")
-    val peers = node.getConfigList("peers").asScala.toList
-    val settings = getCustomSettings(node)
-    BasicNodeConfiguration(nodeId, nodePort, nodeAddress, buildPeerConfigurations(peers), settings)
+    mappingStrategy.map(getConfigurationFromFactory)
   }
 
-  private def getCustomSettings(node: Config): Option[Config] = {
-    Try {
-      node.getConfig("settings")
-    } match {
-      case Success(settings) => Some(settings)
-      case Failure(exception) => None
-    }
-  }
-
-  private def loadConfigurationFile = {
+  private def getConfigurationFromFactory: Config = {
     fileName match {
       case None =>
         logger.info("Loading default configuration.")
@@ -49,20 +31,6 @@ class FileConfigurationProvider(val fileName: Option[String]) extends NodeConfig
       case Some(name) =>
         logger.info(s"Loading configuration : $name")
         ConfigFactory.load(name)
-    }
-  }
-
-  private def buildPeerConfigurations(peers: List[_ <: Config]): List[PeerConfiguration] = {
-    val initialList = List[PeerConfiguration]()
-    val foldingOperator = (config: Config, list: List[PeerConfiguration]) => buildPeerConfiguration(config) :: list
-    peers.foldRight(initialList)(foldingOperator)
-  }
-
-  private def buildPeerConfiguration(peerConfig: Config): PeerConfiguration = {
-    if (peerConfig.hasPath("port")) {
-      BasicPeerConfiguration(peerConfig.getString("address"), peerConfig.getInt("port"))
-    } else {
-      BasicPeerConfiguration(peerConfig.getString("address"))
     }
   }
 
