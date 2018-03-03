@@ -11,16 +11,15 @@ import eu.phisikus.plotka.conf.{NodeConfiguration, NodeConfigurationProvider}
   * @param fileName optional name of the configuration file (resource)
   */
 class FileConfigurationProvider(val fileName: Option[String]) extends NodeConfigurationProvider {
-
   private val logger = Logger(classOf[FileConfigurationProvider])
-  private val mappingStrategy = new ConfigToNodeConfigurationMapper
+  private val nodeConfigurationMapper = new ConfigToNodeConfigurationMapper
 
   def this() {
     this(None)
   }
 
   override def loadConfiguration: NodeConfiguration = {
-    mappingStrategy.map(getConfigurationFromFactory)
+    nodeConfigurationMapper.map(getConfigurationFromFactory)
   }
 
   private def getConfigurationFromFactory: Config = {
