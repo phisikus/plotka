@@ -2,46 +2,52 @@ package eu.phisikus.plotka.conf.providers
 
 import com.orbitz.consul.Consul
 import com.pszymczyk.consul.{ConsulProcess, ConsulStarterBuilder}
-import eu.phisikus.plotka.conf.model.BasicNodeConfiguration
-import org.json4s.NoTypeHints
-import org.json4s.native.Serialization
-import org.json4s.native.Serialization.write
-import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
+import com.typesafe.config.{ConfigException, ConfigFactory}
+import eu.phisikus.plotka.conf.mappers.ConfigToNodeConfigurationMapper
+import eu.phisikus.plotka.conf.providers.TestConfigurationExamples.TestCustomConfigurationText
+import org.scalatest.{BeforeAndAfterAll, FunSuite, Matchers}
 
-class ConsulConfigurationProviderTest extends FlatSpec with BeforeAndAfter with Matchers {
-  private implicit val formats = Serialization.formats(NoTypeHints)
+class ConsulConfigurationProviderTest extends FunSuite with Matchers with BeforeAndAfterAll {
+  private val configurationMapper = new ConfigToNodeConfigurationMapper()
+  private val expectedCustomConfiguration = configurationMapper.map(ConfigFactory.parseString(TestCustomConfigurationText))
   private lazy val testConsul: ConsulProcess = ConsulStarterBuilder
     .consulStarter
     .build
     .start()
 
   private val testConfigurationKey = "plotka-test"
+  private val fakeConfigurationKey = "plotka-test-fake"
+  private val consulUrl = "http://" + testConsul.getAddress + ":" + testConsul.getHttpPort
 
-  before {
-    testConsul
+  override protected def beforeAll(): Unit = {
+    putConfigurationInConsul(TestCustomConfigurationText, consulUrl)
   }
 
-  after {
+  override protected def afterAll(): Unit = {
     testConsul.close()
   }
 
-  "Configuration file" should "be loaded from consul" in {
-    val consulUrl = "http://" + testConsul.getAddress + ":" + testConsul.getHttpPort
+
+  test("Should load configuration file from consul") {
     val testConfigurationProvider = new ConsulConfigurationProvider(consulUrl, testConfigurationKey)
-
-    val expectedConfiguration = BasicNodeConfiguration(peers = List())
-    putConfigurationInConsul(expectedConfiguration, consulUrl)
-
     val actualConfiguration = testConfigurationProvider.loadConfiguration
-    actualConfiguration should equal(expectedConfiguration)
+    actualConfiguration should equal(expectedCustomConfiguration)
   }
 
-  private def putConfigurationInConsul(expectedConfiguration: BasicNodeConfiguration, consulUrl: String) = {
+  test("Should not load configuration file from nonexisting key in consul") {
+    val testConfigurationProvider = new ConsulConfigurationProvider(consulUrl, fakeConfigurationKey)
+    assertThrows[ConfigException.Missing] {
+      testConfigurationProvider.loadConfiguration
+    }
+  }
+
+
+  private def putConfigurationInConsul(expectedConfiguration: String, consulUrl: String) = {
     Consul
       .builder()
       .withUrl(consulUrl)
       .build()
       .keyValueClient()
-      .putValue(testConfigurationKey, write(expectedConfiguration))
+      .putValue(testConfigurationKey, expectedConfiguration)
   }
 }

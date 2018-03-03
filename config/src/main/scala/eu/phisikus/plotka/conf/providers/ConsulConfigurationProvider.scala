@@ -3,11 +3,9 @@ package eu.phisikus.plotka.conf.providers
 import java.util.Optional
 
 import com.orbitz.consul.Consul
-import eu.phisikus.plotka.conf.model.BasicNodeConfiguration
+import com.typesafe.config.{ConfigException, ConfigFactory}
+import eu.phisikus.plotka.conf.mappers.ConfigToNodeConfigurationMapper
 import eu.phisikus.plotka.conf.{NodeConfiguration, NodeConfigurationProvider}
-import org.json4s.NoTypeHints
-import org.json4s.native.Serialization
-import org.json4s.native.Serialization.read
 
 /**
   * This configuration provider uses Consul as a source of settings.
@@ -17,7 +15,7 @@ import org.json4s.native.Serialization.read
   */
 class ConsulConfigurationProvider(val consulUrl: String,
                                   val consulKey: String) extends NodeConfigurationProvider {
-  private implicit val formats = Serialization.formats(NoTypeHints)
+  private val nodeConfigurationMapper = new ConfigToNodeConfigurationMapper
   private val consulClient: Consul = Consul
     .builder()
     .withUrl(consulUrl)
@@ -27,8 +25,9 @@ class ConsulConfigurationProvider(val consulUrl: String,
     val keyValueClient = consulClient.keyValueClient()
     val settingsAsString: Optional[String] = keyValueClient.getValueAsString(consulKey)
     if (!settingsAsString.isPresent) {
-      throw new RuntimeException("Could not load configuration from consul for given key!")
+      throw new ConfigException.Missing(consulKey)
     }
-    read[BasicNodeConfiguration](settingsAsString.get())
+    val config = ConfigFactory.parseString(settingsAsString.get())
+    nodeConfigurationMapper.map(config)
   }
 }
