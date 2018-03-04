@@ -21,6 +21,7 @@ lazy val framework = project.in(file("framework"))
   .settings(Common.settings)
   .settings(Common.testCoverageSettings)
   .settings(Common.publishingSettings)
+  .settings(libraryDependencies ++= Common.Dependencies.consul)
   .settings(libraryDependencies ++= Common.Dependencies.testing)
   .dependsOn(networking)
 
