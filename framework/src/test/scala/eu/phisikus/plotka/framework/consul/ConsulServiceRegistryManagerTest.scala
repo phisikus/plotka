@@ -4,9 +4,9 @@ import com.orbitz.consul.{AgentClient, Consul}
 import com.pszymczyk.consul.{ConsulProcess, ConsulStarterBuilder}
 import eu.phisikus.plotka.conf.model.BasicNodeConfiguration
 import eu.phisikus.plotka.framework.consul.ConsulServiceMapMatcher.containsService
-import org.scalatest.{BeforeAndAfterAll, FunSuite, Matchers}
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite, Matchers}
 
-class ConsulServiceRegistryManagerTest extends FunSuite with Matchers with BeforeAndAfterAll {
+class ConsulServiceRegistryManagerTest extends FunSuite with Matchers with BeforeAndAfterAll with BeforeAndAfter {
 
   private val testConsul: ConsulProcess = ConsulStarterBuilder
     .consulStarter
@@ -22,6 +22,10 @@ class ConsulServiceRegistryManagerTest extends FunSuite with Matchers with Befor
     .withUrl(consulUrl)
     .build()
     .agentClient()
+
+  before {
+    testConsul.reset()
+  }
 
   override protected def afterAll(): Unit = {
     testConsul.close()
@@ -45,6 +49,6 @@ class ConsulServiceRegistryManagerTest extends FunSuite with Matchers with Befor
     )
     registryManager.register()
     registryManager.unregister()
-    consulAgentClient.getServices should be ('empty)
+    consulAgentClient.getServices should be('empty)
   }
 }
