@@ -43,7 +43,7 @@ object Common {
     )
 
     val configuration = Seq(
-      "com.typesafe" % "config" % "1.3.1"
+      "com.typesafe" % "config" % "1.3.2"
     )
 
     val serialization = Seq(
@@ -53,6 +53,11 @@ object Common {
     val logging = Seq(
       "ch.qos.logback" % "logback-classic" % "1.1.7",
       "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0"
+    )
+
+    val consul = Seq(
+      "com.orbitz.consul" % "consul-client" % "1.1.0",
+      "com.pszymczyk.consul" % "embedded-consul" % "1.0.2" % Test
     )
 
     val testing = Seq(
