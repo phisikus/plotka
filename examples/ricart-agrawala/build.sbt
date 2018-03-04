@@ -11,6 +11,6 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "eu.phisikus" % "plotka_2.12" % "0.0.9",
+  "eu.phisikus" % "plotka_2.12" % "0.1.0",
   "org.scalatest" % "scalatest_2.12" % "3.0.4" % "test"
 )
