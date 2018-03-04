@@ -10,14 +10,17 @@ import eu.phisikus.plotka.conf.{NodeConfiguration, NodeConfigurationProvider}
 /**
   * This configuration provider uses Consul as a source of settings.
   *
-  * @param consulUrl URL that will be used for HTTP API calls to consul
-  * @param consulKey key that will be used while retrieving settings information
+  * @param consulUrl     URL that will be used for HTTP API calls to consul
+  * @param consulKey     key that will be used while retrieving settings information
+  * @param consulBuilder optional builder for consul client if additional options have to be set up
+  *
   */
 class ConsulConfigurationProvider(val consulUrl: String,
-                                  val consulKey: String) extends NodeConfigurationProvider {
+                                  val consulKey: String,
+                                  val consulBuilder: Consul.Builder = Consul.builder()
+                                 ) extends NodeConfigurationProvider {
   private val nodeConfigurationMapper = new ConfigToNodeConfigurationMapper
-  private val consulClient: Consul = Consul
-    .builder()
+  private val consulClient: Consul = consulBuilder
     .withUrl(consulUrl)
     .build()
 
