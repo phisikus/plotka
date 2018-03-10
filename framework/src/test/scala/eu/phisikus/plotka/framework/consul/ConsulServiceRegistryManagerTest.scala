@@ -4,9 +4,13 @@ import com.orbitz.consul.{AgentClient, Consul}
 import com.pszymczyk.consul.{ConsulProcess, ConsulStarterBuilder}
 import eu.phisikus.plotka.conf.model.BasicNodeConfiguration
 import eu.phisikus.plotka.framework.consul.ConsulServiceMapMatcher.containsService
+import eu.phisikus.plotka.model.NetworkPeer
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite, Matchers}
 
-class ConsulServiceRegistryManagerTest extends FunSuite with Matchers with BeforeAndAfterAll with BeforeAndAfter {
+class ConsulServiceRegistryManagerTest extends FunSuite
+  with Matchers
+  with BeforeAndAfterAll
+  with BeforeAndAfter {
 
   private val testConsul: ConsulProcess = ConsulStarterBuilder
     .consulStarter
@@ -50,5 +54,28 @@ class ConsulServiceRegistryManagerTest extends FunSuite with Matchers with Befor
     registryManager.register()
     registryManager.unregister()
     consulAgentClient.getServices should be('empty)
+  }
+
+  test("Should get information about other peers") {
+    val firstService = BasicNodeConfiguration(address = "127.0.0.2", peers = Nil)
+    val secondService = BasicNodeConfiguration(address = "127.0.0.3", peers = Nil)
+    val expectedPeerList = Set(
+      NetworkPeer(firstService.id, firstService.address, firstService.port),
+      NetworkPeer(secondService.id, secondService.address, secondService.port)
+    )
+
+    val firstRegistryManager = new ConsulServiceRegistryManager(
+      consulUrl,
+      testServiceName,
+      firstService
+    )
+    val secondRegistryManager = new ConsulServiceRegistryManager(
+      consulUrl,
+      testServiceName,
+      secondService
+    )
+    firstRegistryManager.register()
+    secondRegistryManager.register()
+    firstRegistryManager.getPeers() should equal(expectedPeerList)
   }
 }

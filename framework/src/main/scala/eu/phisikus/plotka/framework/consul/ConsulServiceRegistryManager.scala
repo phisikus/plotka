@@ -3,6 +3,9 @@ package eu.phisikus.plotka.framework.consul
 import com.orbitz.consul.Consul
 import com.orbitz.consul.model.agent.{ImmutableRegistration, Registration}
 import eu.phisikus.plotka.conf.NodeConfiguration
+import eu.phisikus.plotka.model.NetworkPeer
+
+import scala.collection.JavaConverters._
 
 /**
   * This class manages the registration of service based on NodeConfiguration
@@ -21,6 +24,9 @@ class ConsulServiceRegistryManager(consulUrl: String,
     .build()
     .agentClient()
 
+  /**
+    * Register service in consul
+    */
   def register(): Unit = {
     val registrationData: Registration = ImmutableRegistration.builder()
       .name(serviceName)
@@ -32,7 +38,24 @@ class ConsulServiceRegistryManager(consulUrl: String,
     consulAgentClient.register(registrationData)
   }
 
+  /**
+    * Unregister service from consul
+    */
   def unregister(): Unit = {
     consulAgentClient.deregister(nodeConfiguration.id)
+  }
+
+  /**
+    * Get the information about services with the same name.
+    * @return set of services as NetworkPeers for easier connectivity
+    */
+  def getPeers(): Set[NetworkPeer] = {
+    consulAgentClient.getServices
+      .values()
+      .asScala
+      .iterator
+      .filter(service => service.getService == serviceName)
+      .map(service => NetworkPeer(service.getId, service.getAddress, service.getPort))
+      .toSet
   }
 }
