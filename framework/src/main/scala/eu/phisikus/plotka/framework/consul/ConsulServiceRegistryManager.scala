@@ -1,7 +1,9 @@
 package eu.phisikus.plotka.framework.consul
 
+import java.util.concurrent.{Executors, TimeUnit}
+
 import com.orbitz.consul.Consul
-import com.orbitz.consul.model.agent.{ImmutableRegistration, Registration}
+import com.orbitz.consul.model.agent.{ImmutableRegCheck, ImmutableRegistration, Registration}
 import eu.phisikus.plotka.conf.NodeConfiguration
 import eu.phisikus.plotka.model.NetworkPeer
 
@@ -25,8 +27,15 @@ class ConsulServiceRegistryManager(consulUrl: String,
   private val consulAgentClient = consul.agentClient()
   private val consulHealthClient = consul.healthClient()
 
+  private val healthCheckUpdateThread = Executors.newSingleThreadScheduledExecutor()
+  private val healthCheckTimeout: Long = 30
+  private val healthCheck = ImmutableRegCheck.builder()
+    .ttl(healthCheckTimeout + "s")
+    .build()
+
+
   /**
-    * Register service in consul
+    * Register service in consul, should be called only once.
     */
   def register(): Unit = {
     val registrationData: Registration = ImmutableRegistration.builder()
@@ -34,15 +43,23 @@ class ConsulServiceRegistryManager(consulUrl: String,
       .id(nodeConfiguration.id)
       .address(nodeConfiguration.address)
       .port(nodeConfiguration.port)
+      .check(healthCheck)
       .build()
 
+    val healthCheckRenewalProcedure: Runnable = () => {
+      consulAgentClient.pass(registrationData.getId)
+    }
+
     consulAgentClient.register(registrationData)
+    healthCheckUpdateThread.scheduleAtFixedRate(
+      healthCheckRenewalProcedure, 0L, healthCheckTimeout / 2, TimeUnit.SECONDS)
   }
 
   /**
-    * Unregister service from consul
+    * Unregister service from consul, should be called only once
     */
   def unregister(): Unit = {
+    healthCheckUpdateThread.shutdownNow()
     consulAgentClient.deregister(nodeConfiguration.id)
   }
 
