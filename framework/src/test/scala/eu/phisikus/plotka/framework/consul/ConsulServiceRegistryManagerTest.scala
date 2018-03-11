@@ -42,6 +42,7 @@ class ConsulServiceRegistryManagerTest extends FunSuite
       testConfiguration
     )
     registryManager.register()
+    registryManager.shutdown()
     consulAgentClient.getServices should containsService(testServiceName, testConfiguration)
   }
 
@@ -53,6 +54,7 @@ class ConsulServiceRegistryManagerTest extends FunSuite
     )
     registryManager.register()
     registryManager.unregister()
+    registryManager.shutdown()
     consulAgentClient.getServices should be('empty)
   }
 
@@ -74,8 +76,10 @@ class ConsulServiceRegistryManagerTest extends FunSuite
       testServiceName,
       secondService
     )
-    firstRegistryManager.register()
-    secondRegistryManager.register()
-    firstRegistryManager.getPeers() should equal(expectedPeerList)
+    val managers = List(firstRegistryManager, secondRegistryManager)
+
+    managers.foreach(rm => rm.register())
+    managers.head.getPeers() should equal(expectedPeerList)
+    managers.foreach(rm => rm.shutdown())
   }
 }
