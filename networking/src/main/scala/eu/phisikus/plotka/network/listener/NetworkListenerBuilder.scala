@@ -9,7 +9,7 @@ import eu.phisikus.plotka.model.NetworkMessageConsumer
 
 import scala.annotation.tailrec
 
-class NetworkListenerBuilder extends NetworkListenerConstructor {
+class NetworkListenerBuilder {
   private var id: String = UUID.randomUUID().toString
   private var port: Int = 3030
   private var address: String = getLocalAddress
