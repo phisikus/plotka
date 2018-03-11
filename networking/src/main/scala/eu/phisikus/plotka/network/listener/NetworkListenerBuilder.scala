@@ -18,37 +18,37 @@ class NetworkListenerBuilder {
   )
   protected var messageConsumer: NetworkMessageConsumer = msg => {}
 
-  def withId(newId: String): NetworkListenerBuilder = {
+  def withId(newId: String): this.type = {
     nodeConfiguration = nodeConfiguration.copy(id = newId)
     this
   }
 
-  def withPort(newPort: Int): NetworkListenerBuilder = {
+  def withPort(newPort: Int): this.type = {
     nodeConfiguration = nodeConfiguration.copy(port = newPort)
     this
   }
 
-  def withAddress(newAddress: String): NetworkListenerBuilder = {
+  def withAddress(newAddress: String): this.type = {
     nodeConfiguration = nodeConfiguration.copy(address = newAddress)
     this
   }
 
-  def withMessageHandler(newMessageConsumer: NetworkMessageConsumer): NetworkListenerBuilder = {
+  def withMessageHandler(newMessageConsumer: NetworkMessageConsumer): this.type = {
     messageConsumer = newMessageConsumer
     this
   }
 
-  def withPeer(peerAddress: String, peerPort: Int = 3030): NetworkListenerBuilder = {
+  def withPeer(peerAddress: String, peerPort: Int = 3030): this.type = {
     withPeer(BasicPeerConfiguration(peerAddress, peerPort))
   }
 
-  def withPeer(peerConfiguration: PeerConfiguration): NetworkListenerBuilder = {
+  def withPeer(peerConfiguration: PeerConfiguration): this.type = {
     nodeConfiguration = nodeConfiguration.copy(peers = peerConfiguration :: nodeConfiguration.getPeers)
     this
   }
 
   @tailrec
-  final def withPeers(peers: List[PeerConfiguration]): NetworkListenerBuilder = {
+  final def withPeers(peers: List[PeerConfiguration]): this.type = {
     peers match {
       case head :: tail => withPeer(head).withPeers(tail)
       case Nil => this
