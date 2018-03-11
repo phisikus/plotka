@@ -10,24 +10,26 @@ import eu.phisikus.plotka.model.NetworkMessageConsumer
 import scala.annotation.tailrec
 
 class NetworkListenerBuilder {
-  private var id: String = UUID.randomUUID().toString
-  private var port: Int = 3030
-  private var address: String = getLocalAddress
-  private var peers: List[PeerConfiguration] = List()
-  private var messageConsumer: NetworkMessageConsumer = msg => {}
+  protected var nodeConfiguration: BasicNodeConfiguration = BasicNodeConfiguration(
+    UUID.randomUUID().toString,
+    3030,
+    getLocalAddress,
+    Nil
+  )
+  protected var messageConsumer: NetworkMessageConsumer = msg => {}
 
   def withId(newId: String): NetworkListenerBuilder = {
-    id = newId
+    nodeConfiguration = nodeConfiguration.copy(id = newId)
     this
   }
 
   def withPort(newPort: Int): NetworkListenerBuilder = {
-    port = newPort
+    nodeConfiguration = nodeConfiguration.copy(port = newPort)
     this
   }
 
   def withAddress(newAddress: String): NetworkListenerBuilder = {
-    address = newAddress
+    nodeConfiguration = nodeConfiguration.copy(address = newAddress)
     this
   }
 
@@ -41,7 +43,7 @@ class NetworkListenerBuilder {
   }
 
   def withPeer(peerConfiguration: PeerConfiguration): NetworkListenerBuilder = {
-    peers = peerConfiguration :: peers
+    nodeConfiguration = nodeConfiguration.copy(peers = peerConfiguration :: nodeConfiguration.getPeers)
     this
   }
 
@@ -55,7 +57,7 @@ class NetworkListenerBuilder {
 
   def build(): NetworkListener = {
     new NetworkListener(
-      BasicNodeConfiguration(id, port, address, peers),
+      nodeConfiguration,
       messageConsumer
     )
   }

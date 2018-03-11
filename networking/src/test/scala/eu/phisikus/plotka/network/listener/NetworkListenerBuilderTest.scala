@@ -13,7 +13,7 @@ class NetworkListenerBuilderTest extends FunSuite with Eventually with Matchers 
   test("Should build working test listener") {
     var messageReceived = false
 
-    val localPeer = NetworkPeer("TEST1", "127.0.0.1", 3030)
+    val localPeer = NetworkPeer("TEST1", "127.0.0.9", 9090)
     val testTalker = new NetworkTalker(localPeer)
     val testListener = NetworkListenerBuilder()
       .withId(localPeer.id)
