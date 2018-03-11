@@ -46,6 +46,10 @@ class ConsulServiceRegistryManager(consulUrl: String,
       .check(healthCheck)
       .build()
 
+    registerServiceAndStartHealthCheck(registrationData)
+  }
+
+  private def registerServiceAndStartHealthCheck(registrationData: Registration) = {
     val healthCheckRenewalProcedure: Runnable = () => {
       consulAgentClient.pass(registrationData.getId)
     }
