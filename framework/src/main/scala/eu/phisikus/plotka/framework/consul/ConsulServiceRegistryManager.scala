@@ -12,17 +12,18 @@ import scala.collection.JavaConverters._
   *
   * @param consulUrl         URL of the consul agent
   * @param serviceName       name of the service
-  * @param nodeConfiguration node configuration providing meta-data about the service
+  * @param nodeConfiguration node configuration providing meta-data about the instance of the service
   * @param consulBuilder     optional builder for consul client that you can set up with additional options
   */
 class ConsulServiceRegistryManager(consulUrl: String,
                                    serviceName: String,
                                    nodeConfiguration: NodeConfiguration,
                                    consulBuilder: Consul.Builder = Consul.builder()) {
-  private val consulAgentClient = consulBuilder
+  private val consul: Consul = consulBuilder
     .withUrl(consulUrl)
     .build()
-    .agentClient()
+  private val consulAgentClient = consul.agentClient()
+  private val consulHealthClient = consul.healthClient()
 
   /**
     * Register service in consul
@@ -47,14 +48,15 @@ class ConsulServiceRegistryManager(consulUrl: String,
 
   /**
     * Get the information about services with the same name.
+    *
     * @return set of services as NetworkPeers for easier connectivity
     */
   def getPeers(): Set[NetworkPeer] = {
-    consulAgentClient.getServices
-      .values()
+    consulHealthClient
+      .getHealthyServiceInstances(serviceName)
+      .getResponse
       .asScala
-      .iterator
-      .filter(service => service.getService == serviceName)
+      .map(serviceHealth => serviceHealth.getService)
       .map(service => NetworkPeer(service.getId, service.getAddress, service.getPort))
       .toSet
   }
