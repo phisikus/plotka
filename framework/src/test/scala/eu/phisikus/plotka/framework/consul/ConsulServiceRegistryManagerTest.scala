@@ -5,12 +5,15 @@ import com.pszymczyk.consul.{ConsulProcess, ConsulStarterBuilder}
 import eu.phisikus.plotka.conf.model.BasicNodeConfiguration
 import eu.phisikus.plotka.framework.consul.ConsulServiceMapMatcher.containsService
 import eu.phisikus.plotka.model.NetworkPeer
+import org.scalatest.concurrent.Eventually
+import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite, Matchers}
 
 class ConsulServiceRegistryManagerTest extends FunSuite
   with Matchers
   with BeforeAndAfterAll
-  with BeforeAndAfter {
+  with BeforeAndAfter
+  with Eventually {
 
   private val testConsul: ConsulProcess = ConsulStarterBuilder
     .consulStarter
@@ -79,7 +82,9 @@ class ConsulServiceRegistryManagerTest extends FunSuite
     val managers = List(firstRegistryManager, secondRegistryManager)
 
     managers.foreach(rm => rm.register())
-    managers.head.getPeers() should equal(expectedPeerList)
+    eventually(timeout(Span(2, Seconds)), interval(Span(300, Millis))) {
+      managers.head.getPeers() should equal(expectedPeerList)
+    }
     managers.foreach(rm => rm.shutdown())
   }
 }
