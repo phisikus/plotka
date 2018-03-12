@@ -1,6 +1,8 @@
 package eu.phisikus.plotka.framework.consul
 
 import com.orbitz.consul.Consul
+import eu.phisikus.plotka.conf.model.BasicNodeConfiguration
+import eu.phisikus.plotka.conf.providers.ConsulConfigurationProvider
 import eu.phisikus.plotka.network.listener.NetworkListenerBuilder
 
 class ClusteredNetworkListenerBuilder extends NetworkListenerBuilder {
@@ -20,6 +22,16 @@ class ClusteredNetworkListenerBuilder extends NetworkListenerBuilder {
 
   def withConsulBuilder(consulBuilder: Consul.Builder): this.type = {
     this.consulBuilder = Some(consulBuilder)
+    this
+  }
+
+  def withConsulNodeConfiguration(consulKey: String): this.type = {
+    val configurationProvider = consulBuilder match {
+      case None => new ConsulConfigurationProvider(consulUrl, consulKey)
+      case Some(builder) => new ConsulConfigurationProvider(consulUrl, consulKey, builder)
+    }
+
+    nodeConfiguration = configurationProvider.loadConfiguration.asInstanceOf[BasicNodeConfiguration]
     this
   }
 

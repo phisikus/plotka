@@ -3,10 +3,9 @@ package eu.phisikus.plotka.framework.consul
 import eu.phisikus.plotka.framework.consul.ConsulServiceMapMatcher.containsService
 import eu.phisikus.plotka.model.NetworkPeer
 import eu.phisikus.plotka.network.listener.NetworkListener
-import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{Millis, Seconds, Span}
 
-class ClusteredNetworkListenerTest extends AbstractConsulTest with Eventually {
+class ClusteredNetworkListenerTest extends AbstractConsulTest {
 
   private val serviceName = "testService"
 

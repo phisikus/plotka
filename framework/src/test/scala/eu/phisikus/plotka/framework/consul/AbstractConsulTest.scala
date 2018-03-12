@@ -1,11 +1,13 @@
 package eu.phisikus.plotka.framework.consul
 
-import com.orbitz.consul.{AgentClient, Consul}
+import com.orbitz.consul.{AgentClient, Consul, KeyValueClient}
 import com.pszymczyk.consul.{ConsulProcess, ConsulStarterBuilder}
+import org.scalatest.concurrent.Eventually
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite, Matchers}
 
 abstract class AbstractConsulTest extends FunSuite
   with Matchers
+  with Eventually
   with BeforeAndAfter
   with BeforeAndAfterAll {
 
@@ -15,11 +17,13 @@ abstract class AbstractConsulTest extends FunSuite
     .start()
 
   protected val consulUrl: String = "http://" + testConsul.getAddress + ":" + testConsul.getHttpPort
-  protected val consulAgentClient: AgentClient = Consul
+  private val consul = Consul
     .builder()
     .withUrl(consulUrl)
     .build()
-    .agentClient()
+
+  protected val consulAgentClient: AgentClient = consul.agentClient()
+  protected val consulKVClient: KeyValueClient = consul.keyValueClient()
 
 
   before {

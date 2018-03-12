@@ -3,10 +3,9 @@ package eu.phisikus.plotka.framework.consul
 import eu.phisikus.plotka.conf.model.BasicNodeConfiguration
 import eu.phisikus.plotka.framework.consul.ConsulServiceMapMatcher.containsService
 import eu.phisikus.plotka.model.NetworkPeer
-import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{Millis, Seconds, Span}
 
-class ConsulServiceRegistryManagerTest extends AbstractConsulTest with Eventually {
+class ConsulServiceRegistryManagerTest extends AbstractConsulTest {
 
   private val testConfiguration = BasicNodeConfiguration(peers = List(), address = "127.0.0.1")
   private val testServiceName = "test-service"
