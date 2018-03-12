@@ -1,39 +1,15 @@
 package eu.phisikus.plotka.framework.consul
 
-import com.orbitz.consul.{AgentClient, Consul}
-import com.pszymczyk.consul.{ConsulProcess, ConsulStarterBuilder}
 import eu.phisikus.plotka.framework.consul.ConsulServiceMapMatcher.containsService
 import eu.phisikus.plotka.model.NetworkPeer
 import eu.phisikus.plotka.network.listener.NetworkListener
 import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{Millis, Seconds, Span}
-import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FunSuite, Matchers}
 
-class ClusteredNetworkListenerTest extends FunSuite
-  with Matchers
-  with BeforeAndAfterAll
-  with BeforeAndAfter
-  with Eventually {
+class ClusteredNetworkListenerTest extends AbstractConsulTest with Eventually {
 
-  private val testConsul: ConsulProcess = ConsulStarterBuilder
-    .consulStarter
-    .build
-    .start()
   private val serviceName = "testService"
-  private val consulUrl = "http://" + testConsul.getAddress + ":" + testConsul.getHttpPort
-  private val consulAgentClient: AgentClient = Consul
-    .builder()
-    .withUrl(consulUrl)
-    .build()
-    .agentClient()
 
-  before {
-    testConsul.reset()
-  }
-
-  override protected def afterAll(): Unit = {
-    testConsul.close()
-  }
 
   test("Should register service on start") {
     val testListener = ClusteredNetworkListenerBuilder()
