@@ -15,7 +15,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "eu.phisikus" % "plotka_2.12" % "0.1.1"
+  "eu.phisikus" % "plotka_2.12" % "0.1.2"
 )
 
 enablePlugins(DockerPlugin)
