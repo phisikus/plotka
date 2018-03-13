@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit
 
 import eu.phisikus.plotka.framework.fsm.StateMachine
 import org.mockito.Mockito.verify
-import org.mockito.internal.verification.Times
 import org.scalatest.FunSuite
 import org.scalatest.concurrent.Eventually
 import org.scalatest.mockito.MockitoSugar
@@ -20,7 +19,7 @@ class SingleAlarmClockTest extends FunSuite with MockitoSugar with Eventually {
 
     singleAlarmClock.start()
     eventually(timeout(Span(300, Milliseconds))) {
-      verify(stateMachine, new Times(1)).push(ClockEvent(singleAlarmClock))
+      verify(stateMachine).push(ClockEvent(singleAlarmClock))
     }
     singleAlarmClock.stop()
   }

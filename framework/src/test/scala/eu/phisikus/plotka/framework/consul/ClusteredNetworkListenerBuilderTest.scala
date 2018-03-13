@@ -6,7 +6,6 @@ import eu.phisikus.plotka.model._
 import eu.phisikus.plotka.network.talker.Talker
 import org.mockito.Matchers.any
 import org.mockito.Mockito.verify
-import org.mockito.internal.verification.Times
 import org.scalatest.mockito.MockitoSugar
 
 import scala.io.Source
@@ -40,7 +39,7 @@ class ClusteredNetworkListenerBuilderTest extends AbstractConsulTest with Mockit
       .build()
 
     listener.messageConsumer.consumeMessage(networkMessage.asInstanceOf[Message[NetworkPeer, Peer, Serializable]])
-    verify(advancedHandler, new Times(1)).apply(any[NetworkMessage], any[Talker], any[ClusterPeerListProvider])
+    verify(advancedHandler).apply(any[NetworkMessage], any[Talker], any[ClusterPeerListProvider])
   }
 
 }
