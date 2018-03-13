@@ -18,10 +18,8 @@ import eu.phisikus.plotka.network.talker.Talker
   */
 class ClusteredNetworkMessageConsumer(localPeer: NetworkPeer,
                                       consulServiceRegistryManager: ConsulServiceRegistryManager,
-                                      messageHandler: (NetworkMessage, Talker, ClusterPeerListProvider) => Unit
-                                     )
+                                      messageHandler: (NetworkMessage, Talker, ClusterPeerListProvider) => Unit)
   extends StandardNetworkMessageConsumer(
     localPeer,
-    (message, talker) => {
-      messageHandler.apply(message, talker, new ClusterPeerListProvider(consulServiceRegistryManager))
-    })
+    (message, talker) => messageHandler.apply(message, talker, new ClusterPeerListProvider(consulServiceRegistryManager))
+  )
