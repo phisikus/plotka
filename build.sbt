@@ -26,6 +26,7 @@ lazy val framework = project.in(file("framework"))
   .dependsOn(networking)
 
 lazy val plotka = project.in(file("."))
+  .enablePlugins(ScalaUnidocPlugin)
   .settings(name := "plotka")
   .settings(Common.settings)
   .settings(Common.publishingSettings)
