@@ -1,6 +1,7 @@
 package eu.phisikus.plotka.network.talker
 
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 import eu.phisikus.plotka.conf.model.BasicNodeConfiguration
 import eu.phisikus.plotka.model.{NetworkMessage, NetworkPeer}
@@ -11,6 +12,9 @@ import org.apache.commons.lang3.RandomUtils
 import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{FunSuite, Matchers}
+
+import scala.concurrent.Future
+import scala.concurrent.duration.Duration
 
 class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
 
@@ -93,7 +97,6 @@ class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
     val sendResult = testTalker.send(localPeer, testMessage)
     sendResult.isFailure shouldBe true
   }
-
 
   private def getMultipleRandomTestMessages(count: Int): List[NetworkMessage] = {
     Range(0, count).map(i => NetworkMessage(

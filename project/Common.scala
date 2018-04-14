@@ -39,8 +39,7 @@ object Common {
 
   object Dependencies {
     val utils = Seq(
-      "org.apache.commons" % "commons-lang3" % "3.6",
-      "com.softwaremill.retry" %% "retry" % "0.3.0"
+      "org.apache.commons" % "commons-lang3" % "3.6"
     )
 
     val configuration = Seq(
