@@ -17,6 +17,7 @@ class NetworkTalker(localPeer: Peer) extends Talker {
   private val logger = Logger(classOf[NetworkTalker])
   private val peerChannelMap: TrieMap[NetworkPeer, SocketChannel] = new TrieMap()
   private val bufferWithZero: ByteBuffer = ByteBuffer.wrap(getIntAsBytes(0))
+  private val maxNumberOfRetries = 10
   private val threadPool = Executors.newCachedThreadPool()
 
   override def send(recipient: NetworkPeer,
@@ -32,7 +33,7 @@ class NetworkTalker(localPeer: Peer) extends Talker {
       val messageSizeAsBytes = getIntAsBytes(messageAsBytes.length)
       val messageBuffer = buildBufferForMessage(messageAsBytes, messageSizeAsBytes)
 
-      sendWithRetry(recipient, messageBuffer)
+      sendWithRetry(recipient, messageBuffer, maxNumberOfRetries)
     })
   }
 
@@ -61,7 +62,9 @@ class NetworkTalker(localPeer: Peer) extends Talker {
   }
 
   @tailrec
-  private def sendWithRetry(recipient: NetworkPeer, bufferWithMessage: ByteBuffer): Unit = {
+  private def sendWithRetry(recipient: NetworkPeer,
+                            bufferWithMessage: ByteBuffer,
+                            retryAttemptsLeft: Int): Unit = {
     val clientChannel: SocketChannel = getOpenChannelForPeer(recipient)
     logger.debug(s"Sending data to: ${clientChannel.getRemoteAddress}")
     try {
@@ -73,9 +76,19 @@ class NetworkTalker(localPeer: Peer) extends Talker {
       case exception: Exception =>
         logger.debug(s"Failed to send message, retrying. Reason: $exception")
         bufferWithMessage.rewind()
-        sendWithRetry(recipient, bufferWithMessage)
-    }
 
+        if (retryAttemptsLeft > 0) {
+          delayNextAttempt(retryAttemptsLeft)
+          sendWithRetry(recipient, bufferWithMessage, retryAttemptsLeft - 1)
+        } else {
+          throw exception
+        }
+    }
+  }
+
+  private def delayNextAttempt(retryAttemptsLeft: Int) = {
+    val timeToSleep = Math.pow(2L, maxNumberOfRetries - retryAttemptsLeft).toLong
+    Thread.sleep(timeToSleep)
   }
 
   private def getOpenChannelForPeer(recipient: NetworkPeer): SocketChannel = {

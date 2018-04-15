@@ -19,7 +19,7 @@ object Common {
   )
 
   val dependencies: Def.Setting[Seq[ModuleID]] = libraryDependencies ++= Seq(
-    Dependencies.commons,
+    Dependencies.utils,
     Dependencies.configuration,
     Dependencies.logging,
     Dependencies.testing
@@ -38,7 +38,7 @@ object Common {
   }
 
   object Dependencies {
-    val commons = Seq(
+    val utils = Seq(
       "org.apache.commons" % "commons-lang3" % "3.6"
     )
 
