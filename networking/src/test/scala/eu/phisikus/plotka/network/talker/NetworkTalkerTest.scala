@@ -94,8 +94,9 @@ class NetworkTalkerTest extends FunSuite with Eventually with Matchers {
     testListener.start()
     testTalker.send(localPeer, testMessage)
     testListener.stop()
-    val sendResult = testTalker.send(localPeer, testMessage)
-    sendResult.isFailure shouldBe true
+    eventually(timeout(Span(10, Seconds)), interval(Span(300, Millis))) {
+      testTalker.send(localPeer, testMessage).isFailure shouldBe true
+    }
   }
 
   private def getMultipleRandomTestMessages(count: Int): List[NetworkMessage] = {
