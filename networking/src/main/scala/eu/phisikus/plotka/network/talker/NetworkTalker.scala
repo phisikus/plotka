@@ -81,6 +81,7 @@ class NetworkTalker(localPeer: Peer) extends Talker {
           delayNextAttempt(retryAttemptsLeft)
           sendWithRetry(recipient, bufferWithMessage, retryAttemptsLeft - 1)
         } else {
+          peerChannelMap.remove(recipient)
           throw exception
         }
     }
