@@ -4,25 +4,29 @@ import com.google.gson.Gson;
 import eu.phisikus.plotka.conf.NodeConfiguration;
 import eu.phisikus.plotka.conf.PeerConfiguration;
 import eu.phisikus.plotka.conf.providers.FileConfigurationProvider;
-import eu.phisikus.plotka.examples.messages.NewEntryMessage;
+import eu.phisikus.plotka.examples.messages.KVEntry;
 import eu.phisikus.plotka.model.NetworkPeer;
 import eu.phisikus.plotka.network.consumer.StandardNetworkMessageConsumer;
 import eu.phisikus.plotka.network.listener.NetworkListener;
 import eu.phisikus.plotka.network.talker.NetworkTalker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Serializable;
 import scala.collection.immutable.List;
 import scala.runtime.BoxedUnit;
 import spark.Route;
 import spark.Spark;
 
+import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class KeyValue {
-    private static Map<String, String> data = new ConcurrentHashMap<>();
+    private static Map<String, KVEntry> data = new ConcurrentHashMap<>();
     private static Logger logger = LoggerFactory.getLogger(KeyValue.class);
+    private static ScheduledExecutorService replicationService = Executors.newScheduledThreadPool(1);
 
     public static void main(String[] args) {
         NodeConfiguration nodeConfiguration = getNodeConfiguration();
@@ -33,18 +37,31 @@ public class KeyValue {
 
         Gson serializer = new Gson();
         Spark.port(nodeConfiguration.settings().get().getInt("http-port"));
-        Spark.get("/store", (request, response) -> serializer.toJson(data));
+        Spark.get("/store", (request, response) -> serializer.toJson(data.values()));
         Spark.get("/store/:key", getValueHandler());
         Spark.post("/store/:key", setValueHandler(networkTalker, nodeConfiguration.peers()));
         Spark.put("/store/:key", setValueHandler(networkTalker, nodeConfiguration.peers()));
+
+        Runnable sendAllKeysToEveryone = () -> data.values().forEach(kvEntry -> nodeConfiguration
+                .peers()
+                .iterator()
+                .foreach(peer -> {
+                    NetworkPeer recipient = new NetworkPeer(peer.address(), peer.port());
+                    networkTalker.send(recipient, kvEntry);
+                    return BoxedUnit.UNIT;
+                }));
+        replicationService.scheduleWithFixedDelay(sendAllKeysToEveryone, 0L, 15L, TimeUnit.SECONDS);
 
     }
 
     private static StandardNetworkMessageConsumer getMessageHandlerThatAddsIncommingKVs(NetworkPeer myself) {
         return new StandardNetworkMessageConsumer(myself, (message, talker) -> {
-            NewEntryMessage newEntry = (NewEntryMessage) message.getMessage();
+            KVEntry newEntry = (KVEntry) message.getMessage();
             logger.info("I've received new entry from my peer: {}", newEntry);
-            data.put(newEntry.getKey(), newEntry.getValue());
+            KVEntry entry = data.getOrDefault(newEntry.getKey(), newEntry);
+            if (entry.getTimestamp() >= newEntry.getTimestamp()) {
+                data.put(newEntry.getKey(), newEntry);
+            }
             return BoxedUnit.UNIT;
         });
     }
@@ -58,8 +75,10 @@ public class KeyValue {
         return (request, response) -> {
             String value = request.body();
             String key = request.params("key");
+            KVEntry newEntry = new KVEntry(key, value, Calendar.getInstance().getTimeInMillis());
             peers.foreach(peer -> {
-                networkTalker.send(new NetworkPeer(peer.address(), peer.port()), new NewEntryMessage(key, value));
+                NetworkPeer recipient = new NetworkPeer(peer.address(), peer.port());
+                networkTalker.send(recipient, newEntry);
                 return BoxedUnit.UNIT;
             });
             return value;
@@ -71,7 +90,7 @@ public class KeyValue {
             String key = request.params("key");
             if (data.containsKey(key)) {
                 response.status(200);
-                return data.get(key);
+                return data.get(key).getValue();
             }
             response.status(404);
             return "key not found";

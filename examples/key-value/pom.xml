@@ -55,7 +55,7 @@
         <dependency>
             <groupId>eu.phisikus</groupId>
             <artifactId>plotka_2.12</artifactId>
-            <version>0.1.3</version>
+            <version>0.1.5</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.sparkjava/spark-core -->
         <dependency>
