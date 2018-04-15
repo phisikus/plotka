@@ -75,14 +75,19 @@ public class KeyValue {
         return (request, response) -> {
             String value = request.body();
             String key = request.params("key");
-            KVEntry newEntry = new KVEntry(key, value, Calendar.getInstance().getTimeInMillis());
-            peers.foreach(peer -> {
-                NetworkPeer recipient = new NetworkPeer(peer.address(), peer.port());
-                networkTalker.send(recipient, newEntry);
-                return BoxedUnit.UNIT;
-            });
+            long timestamp = Calendar.getInstance().getTimeInMillis();
+            KVEntry newEntry = new KVEntry(key, value, timestamp);
+            sendToAllPeers(networkTalker, peers, newEntry);
             return value;
         };
+    }
+
+    private static void sendToAllPeers(NetworkTalker networkTalker, List<PeerConfiguration> peers, KVEntry newEntry) {
+        peers.foreach(peer -> {
+            NetworkPeer recipient = new NetworkPeer(peer.address(), peer.port());
+            networkTalker.send(recipient, newEntry);
+            return BoxedUnit.UNIT;
+        });
     }
 
     private static Route getValueHandler() {
